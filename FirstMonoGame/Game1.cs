@@ -28,7 +28,7 @@ public class Game1 : Core
 
         // Start playing the background music.
         Audio.PlaySong(_themeSong);
-        Audio.SetMasterVolume(0f);
+        Audio.SetMasterVolume(1f);
         Audio.SetMusicVolume(0.2f);
         Audio.SetSoundEffectVolume(0.2f);
 

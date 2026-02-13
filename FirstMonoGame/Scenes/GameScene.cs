@@ -53,8 +53,14 @@ public class GameScene : Scene
     // Defines the position to draw the score text at.
     private Vector2 _scoreTextPosition;
 
+    // Defines the position to draw the score text at.
+    private Vector2 _healthTextPosition;
+
     // Defines the origin used when drawing the score text.
     private Vector2 _scoreTextOrigin;
+
+    // Defines the origin used when drawing the score text.
+    private Vector2 _healthTextOrigin;
 
     // A reference to the pause panel UI element so we can set its visibility
     // when the game is paused.
@@ -72,6 +78,7 @@ public class GameScene : Scene
     private TextureAtlas _atlas;
 
     private Player _player;
+    private Sprite _swordSprite;
     private List<Enemy> _enemies;
 
     public override void Initialize()
@@ -98,7 +105,7 @@ public class GameScene : Scene
         Vector2 playerPosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
 
         // Initialize the player
-        _player = new Player(10, playerPosition, _slime);
+        _player = new Player(5, playerPosition, _slime, _swordSprite);
 
         _enemies = new List<Enemy>();
 
@@ -122,9 +129,15 @@ public class GameScene : Scene
         // room bounds, and to vertically be at the center of the first tile.
         _scoreTextPosition = new Vector2(_roomBounds.Left, _tilemap.TileHeight * 0.5f);
 
+        _healthTextPosition = new Vector2(_roomBounds.Right, _tilemap.TileHeight * 0.5f);
+
         // Set the origin of the text so it is left-centered.
         float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
         _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
+
+        // Set the origin of the text so it is right-centered.
+        float healthTextXOrigin = _font.MeasureString("HP: 10").X;
+        _healthTextOrigin = new Vector2(healthTextXOrigin, scoreTextYOrigin);
 
         InitializeUI();
     }
@@ -137,6 +150,10 @@ public class GameScene : Scene
         // Create the slime animated sprite from the atlas.
         _slime = _atlas.CreateAnimatedSprite("slime-animation");
         _slime.Scale = new Vector2(4.0f, 4.0f);
+
+        _swordSprite = _atlas.CreateSprite("unfocused-button");
+        _swordSprite.Origin = new Vector2(0, _swordSprite.Region.Height * 0.5f);
+        _swordSprite.Scale = new Vector2(2.0f, 2.0f);
 
         // Create the bat animated sprite from the atlas.
         _bat = _atlas.CreateAnimatedSprite("bat-animation");
@@ -180,8 +197,12 @@ public class GameScene : Scene
         CheckGamepadInput();
         _player.Update(gameTime, _roomBounds);
 
+
+        // Loop through each enemy
         foreach (Enemy enemy in _enemies)
         {
+            // Check if enemies are colliding with each other, if so push them away a bit
+            // This is janky and needs to be improved tbh
             foreach(Enemy otherEnemy in _enemies)
             {
                 if(enemy != otherEnemy && enemy.Bounds.Intersects(otherEnemy.Bounds))
@@ -196,19 +217,36 @@ public class GameScene : Scene
                 }
             }
 
-            if (_player.Bounds.Intersects(enemy.Bounds))
+            // Check if player is sticking their sword out
+            if (_player.SwordExtended)
             {
-                // Change the bat position by setting the x and y values equal to
-                // the column and row multiplied by the width and height.
-                enemy.ResetPosition(GetRandomTile());
+                // If the enemy is touching the swords hitbox, set them to a new position and gain score
+                if (enemy.Bounds.Intersects(_player.SwordHitbox))
+                {
+                    // Change the bat position by setting the x and y values equal to
+                    // the column and row multiplied by the width and height.
+                    enemy.ResetPosition(GetRandomTile());
 
-                // Play the collect sound effect.
-                Core.Audio.PlaySoundEffect(_collectSoundEffect);
+                    // Play the collect sound effect.
+                    Core.Audio.PlaySoundEffect(_collectSoundEffect);
 
-                // Increase the player's score.
-                _score += 100;
+                    // Increase the player's score.
+                    _score += 100;
+                }
             }
-        }    
+
+            if (enemy.Bounds.Intersects(_player.Bounds))
+            {
+                if (!_player.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
+
+                _player.TakeDamage(1);
+
+                if (_player.Health.CurrentHealth <= 0)
+                {
+                    Core.ChangeScene(new TitleScene());
+                }
+            }   
+        } 
     }
 
     private Vector2 GetRandomTile()
@@ -305,6 +343,11 @@ public class GameScene : Scene
         // Draw the slime sprite.
         _player.Draw();
 
+        if (_player.SwordExtended)
+        {
+            Core.DrawRectangleOutline(_player.SwordHitbox);
+        }
+
         foreach(Enemy enemy in _enemies)
         {
             enemy.Draw();
@@ -318,6 +361,18 @@ public class GameScene : Scene
             Color.White,        // color
             0.0f,               // rotation
             _scoreTextOrigin,   // origin
+            1.0f,               // scale
+            SpriteEffects.None, // effects
+            0.0f                // layerDepth
+        );
+
+        Core.SpriteBatch.DrawString(
+            _font,              // spriteFont
+            $"HP: {_player.Health.CurrentHealth}", // text
+            _healthTextPosition, // position
+            Color.White,        // color
+            0.0f,               // rotation
+            _healthTextOrigin,   // origin
             1.0f,               // scale
             SpriteEffects.None, // effects
             0.0f                // layerDepth

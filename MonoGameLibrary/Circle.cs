@@ -95,6 +95,26 @@ public readonly struct Circle : IEquatable<Circle>
     }
 
     /// <summary>
+    /// Returns a value that indicates whether the specified circle intersects with this circle.
+    /// </summary>
+    /// <param name="other">The other circle to check.</param>
+    /// <returns>true if the other circle intersects with this circle; otherwise, false.</returns>
+    public bool Intersects(Rectangle other)
+    {
+        // Find the closest point on the rectangle to the center of the circle
+        Vector2 closestPoint;
+
+        closestPoint.X = MathHelper.Clamp(X, other.Left, other.Right);
+        closestPoint.Y = MathHelper.Clamp(Y, other.Top, other.Bottom);
+
+        // Calculate the distance between the closest point and the circle's center
+        float distance = Vector2.Distance(new Vector2(X, Y), closestPoint);
+
+        // If the distance is less than the circle's radius, they are intersecting
+        return distance < Radius;
+    }
+
+    /// <summary>
     /// Returns a value that indicates whether this circle and the specified object are equal
     /// </summary>
     /// <param name="obj">The object to compare with this circle.</param>

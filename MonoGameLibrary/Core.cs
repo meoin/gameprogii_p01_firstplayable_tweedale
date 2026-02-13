@@ -275,4 +275,32 @@ public class Core : Game
         DisplayMode display = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
         SetResolution(display.Width, display.Height);
     }
+
+    public static void DrawRectangleOutline(Rectangle rect)
+    {
+        int borderWidth = 3; // Desired thickness of the outline
+        Color outlineColor = Color.Red; // Desired color of the outline
+        Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
+
+        // Draw the top line
+        SpriteBatch.Draw(pixel,
+                         new Rectangle(rect.X, rect.Y, rect.Width, borderWidth),
+                         outlineColor);
+
+        // Draw the bottom line
+        SpriteBatch.Draw(pixel,
+                         new Rectangle(rect.X, rect.Y + rect.Height - borderWidth, rect.Width, borderWidth),
+                         outlineColor);
+
+        // Draw the left line
+        SpriteBatch.Draw(pixel,
+                         new Rectangle(rect.X, rect.Y, borderWidth, rect.Height),
+                         outlineColor);
+
+        // Draw the right line
+        SpriteBatch.Draw(pixel,
+                         new Rectangle(rect.X + rect.Width - borderWidth, rect.Y, borderWidth, rect.Height),
+                         outlineColor);
+    }
 }

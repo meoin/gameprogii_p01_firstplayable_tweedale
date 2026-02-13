@@ -11,7 +11,7 @@ public class Entity
 {
     public const int DEFAULT_MAX_SHIELD = 5;
     private const float HURT_INVINCIBILITY_SECONDS = 2.5f;
-    private bool _invincibleAfterBeingHurt = false;
+    public bool InvincibleAfterBeingHurt = false;
     private float _hurtInvincibilityTimer = 0f;
 
     public string Name { get; private set; }
@@ -46,13 +46,13 @@ public class Entity
 
     public virtual void Update(GameTime gameTime, Rectangle roomBounds)
     {
-        if (_invincibleAfterBeingHurt)
+        if (InvincibleAfterBeingHurt)
         {
             _hurtInvincibilityTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (_hurtInvincibilityTimer >= HURT_INVINCIBILITY_SECONDS)
             {
-                _invincibleAfterBeingHurt = false;
+                InvincibleAfterBeingHurt = false;
                 _hurtInvincibilityTimer = 0;
             }
         }
@@ -62,21 +62,29 @@ public class Entity
         Sprite.Update(gameTime);
     }
 
-    public void Draw()
+    public virtual void Draw()
     {
-        Sprite.Draw(Core.SpriteBatch, Position);
+        if (InvincibleAfterBeingHurt)
+        {
+            float hurtFlashWave = MathF.Sin(_hurtInvincibilityTimer * MathHelper.Pi * 5);
+            if (hurtFlashWave > 0) Sprite.Draw(Core.SpriteBatch, Position, Color.Red);
+            else Sprite.Draw(Core.SpriteBatch, Position);
+        } 
+        else Sprite.Draw(Core.SpriteBatch, Position);
+
+
     }
 
     private void RemainWithinRoomBounds(Rectangle roomBounds)
     {
-        // Creating a bounding circle for the slime.
+        // Creating a bounding circle for the entity.
         Bounds = new Circle(
             (int)(Position.X + (Sprite.Width * 0.5f)),
             (int)(Position.Y + (Sprite.Height * 0.5f)),
             (int)(Sprite.Width * 0.5f)
         );
 
-        // Use distance based checks to determine if the slime is within the
+        // Use distance based checks to determine if the entity is within the
         // bounds of the game screen, and if it is outside that screen edge,
         // move it back inside.
         if (Bounds.Left < roomBounds.Left)
@@ -98,9 +106,9 @@ public class Entity
         }
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
-        if (_invincibleAfterBeingHurt) return;
+        if (InvincibleAfterBeingHurt) return;
 
         if (damage < 0)
         {
@@ -112,7 +120,7 @@ public class Entity
         }
 
 
-        _invincibleAfterBeingHurt = true;
+        InvincibleAfterBeingHurt = true;
 
         if (Shield.CurrentHealth > 0)
         {
@@ -127,5 +135,10 @@ public class Entity
         {
             Health.TakeDamage(damage);
         }
+    }
+
+    public Vector2 GetCenter()
+    {
+        return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
     }
 }
