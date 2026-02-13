@@ -4,82 +4,46 @@ using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using Microsoft.Xna.Framework.Input;
-using Gum.Managers;
 
 namespace FirstMonoGame.Objects;
 
-public class Player
+public class Player : Entity
 {
-    private const float MOVEMENT_SPEED = 5.0f;
+    private const float MOVEMENT_SPEED = 300.0f;
+    public Vector2 FacingDirection = new Vector2(1, 0);
 
-    public string Name { get; private set; }
-    public Health Health { get; private set; }
-    public Health Shield { get; private set; }
-    private Vector2 _position;
-    public Vector2 Position
+    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite) : base( name, maxHealth, maxShield, startingShield, position, sprite)
     {
-        get => _position;
-    }
-    public AnimatedSprite Sprite { get; private set; }
-    public Circle Bounds {get; private set; }
-
-    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite)
-    {
-        Name = name;
-        Health = new Health(maxHealth);
-        Shield = new Health(maxShield, startingShield);
-        _position = position;
-        Sprite = sprite;
+        
     }
 
-    public void Update(GameTime gameTime, Rectangle roomBounds)
+    public Player(int maxHealth, Vector2 position, AnimatedSprite sprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
     {
+        
+    }
+
+    public override void Update(GameTime gameTime, Rectangle roomBounds)
+    {
+        PreviousPosition = Position;
+
         PlayerMovement(gameTime);
 
-        // Creating a bounding circle for the slime.
-        Bounds = new Circle(
-            (int)(Position.X + (Sprite.Width * 0.5f)),
-            (int)(Position.Y + (Sprite.Height * 0.5f)),
-            (int)(Sprite.Width * 0.5f)
-        );
-
-        // Use distance based checks to determine if the slime is within the
-        // bounds of the game screen, and if it is outside that screen edge,
-        // move it back inside.
-        if (Bounds.Left < roomBounds.Left)
-        {
-            _position.X = roomBounds.Left;
-        }
-        else if (Bounds.Right > roomBounds.Right)
-        {
-            _position.X = roomBounds.Right - Sprite.Width;
-        }
-
-        if (Bounds.Top < roomBounds.Top)
-        {
-            _position.Y = roomBounds.Top;
-        }
-        else if (Bounds.Bottom > roomBounds.Bottom)
-        {
-            _position.Y = roomBounds.Bottom - Sprite.Height;
-        }
-
-        Sprite.Update(gameTime);
-    }
-
-    public void Draw()
-    {
-        Sprite.Draw(Core.SpriteBatch, Position);
+        base.Update(gameTime, roomBounds);
     }
 
     private void PlayerMovement(GameTime gameTime)
     {
+        if (!GetKeyboardInput(gameTime)) CheckGamepadInput(gameTime);
+    }
+
+    private bool GetKeyboardInput(GameTime gameTime)
+    {
         KeyboardInfo keyboard = Core.Input.Keyboard;
 
-        float speed = MOVEMENT_SPEED;
+        float speed = MOVEMENT_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector2 movementVector = Vector2.Zero;
 
-        if (keyboard.IsKeyDown(Keys.Space))
+        if (keyboard.IsKeyDown(Keys.LeftShift))
         {
             speed *= 1.5f;
         }
@@ -87,21 +51,25 @@ public class Player
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
         {
             movementVector.Y -= speed;
+            FacingDirection = new Vector2(0, 1);
         }
 
         if (keyboard.IsKeyDown(Keys.S) || keyboard.IsKeyDown(Keys.Down))
         {
             movementVector.Y += speed;
+            FacingDirection = new Vector2(0, -1);
         }
 
         if (keyboard.IsKeyDown(Keys.A) || keyboard.IsKeyDown(Keys.Left))
         {
             movementVector.X -= speed;
+            FacingDirection = new Vector2(-1, 0);
         }
 
         if (keyboard.IsKeyDown(Keys.D) || keyboard.IsKeyDown(Keys.Right))
         {
             movementVector.X += speed;
+            FacingDirection = new Vector2(1, 0);
         }
 
         // Ensuring that movement vector is always normalized
@@ -113,31 +81,58 @@ public class Player
         // Applying the movement vector to the slime
 
         _position = new Vector2(Position.X + movementVector.X, Position.Y + movementVector.Y);
+
+        if (movementVector != Vector2.Zero) return true;
+        else return false;
     }
 
-    public void TakeDamage(int damage)
+    private void CheckGamepadInput(GameTime gameTime)
     {
-        if (damage < 0)
+        GamePadInfo gamepadOne = Core.Input.GamePads[(int)PlayerIndex.One];
+
+        float speed = MOVEMENT_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        Vector2 movementVector = Vector2.Zero;
+
+        if (gamepadOne.IsButtonDown(Buttons.A))
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Damage cannot be less than 0!");
-            Console.ForegroundColor = ConsoleColor.White;
-
-            return;
-        }
-
-        if (Shield.CurrentHealth > 0)
-        {
-            int spilloverDamage = Shield.TakeDamage(damage);
-
-            if (spilloverDamage > 0)
-            {
-                Health.TakeDamage(spilloverDamage);
-            }
+            speed *= 1.5f;
+            gamepadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));
         }
         else
         {
-            Health.TakeDamage(damage);
+            GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
         }
+
+        if (gamepadOne.LeftThumbStick != Vector2.Zero)
+        {
+            movementVector.X += gamepadOne.LeftThumbStick.X * speed;
+            movementVector.Y -= gamepadOne.LeftThumbStick.Y * speed;
+        }
+        else
+        {
+            if (gamepadOne.IsButtonDown(Buttons.DPadUp))
+            {
+                movementVector.Y -= speed;
+            }
+            if (gamepadOne.IsButtonDown(Buttons.DPadDown))
+            {
+                movementVector.Y += speed;
+            }
+            if (gamepadOne.IsButtonDown(Buttons.DPadLeft))
+            {
+                movementVector.X -= speed;
+            }
+            if (gamepadOne.IsButtonDown(Buttons.DPadRight))
+            {
+                movementVector.X += speed;
+            }
+        }
+
+        if (movementVector != Vector2.Zero)
+            movementVector = Vector2.Normalize(movementVector);
+
+        movementVector *= speed;
+        _position = new Vector2(Position.X + movementVector.X, Position.Y + movementVector.Y);
     }
 }

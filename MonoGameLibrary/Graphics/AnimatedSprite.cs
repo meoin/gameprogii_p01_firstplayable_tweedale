@@ -36,6 +36,12 @@ public class AnimatedSprite : Sprite
         Animation = animation;
     }
 
+    public AnimatedSprite(AnimatedSprite sprite)
+    {
+        Animation = sprite.Animation;
+        Scale = sprite.Scale;
+    }
+
     /// <summary>
     /// Sets the delay of this sprites animation in milliseconds.
     /// </summary>

@@ -15,6 +15,9 @@ using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using MonoGameLibrary.Scenes;
 using FirstMonoGame.Objects;
+using FirstMonoGame.Objects.Enemies;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace FirstMonoGame.Scenes;
 
@@ -26,17 +29,8 @@ public class GameScene : Scene
     // Defines the bat animated sprite.
     private AnimatedSprite _bat;
 
-    // Tracks the position of the slime.
-    private Vector2 _slimePosition;
-
     // Speed multiplier when moving.
     private const float MOVEMENT_SPEED = 5.0f;
-
-    // Tracks the position of the bat.
-    private Vector2 _batPosition;
-
-    // Tracks the velocity of the bat.
-    private Vector2 _batVelocity;
 
     // Defines the tilemap to draw.
     private Tilemap _tilemap;
@@ -78,6 +72,7 @@ public class GameScene : Scene
     private TextureAtlas _atlas;
 
     private Player _player;
+    private List<Enemy> _enemies;
 
     public override void Initialize()
     {
@@ -100,13 +95,28 @@ public class GameScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        _slimePosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
+        Vector2 playerPosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
 
         // Initialize the player
-        _player = new Player("Player", 10, 5, 0, _slimePosition, _slime);
+        _player = new Player(10, playerPosition, _slime);
 
-        // Initial bat position will the in the top left corner of the room.
-        _batPosition = new Vector2(_roomBounds.Left + 10, _roomBounds.Top - 10);
+        _enemies = new List<Enemy>();
+
+        for (int i = 0; i < 3; i++)
+        {
+            // Initial slime position to a random position on the screen
+            Vector2 slimePosition = GetRandomTile();
+
+            _enemies.Add(new Slime(5, slimePosition, new AnimatedSprite(_slime), _player));
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            // Initial bat position to a random position on the screen
+            Vector2 batPosition = GetRandomTile();
+
+            _enemies.Add(new Bat(5, batPosition, new AnimatedSprite(_bat)));
+        }
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -115,9 +125,6 @@ public class GameScene : Scene
         // Set the origin of the text so it is left-centered.
         float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
         _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
-
-        // Assign the initial random velocity to the bat.
-        AssignRandomBatVelocity();
 
         InitializeUI();
     }
@@ -163,103 +170,54 @@ public class GameScene : Scene
             return;
         }
 
-        // Update the slime animated sprite.
-        _slime.Update(gameTime);
-
-        // Update the bat animated sprite.
-        _bat.Update(gameTime);
+        foreach (Enemy enemy in _enemies)
+        {
+            enemy.Update(gameTime, _roomBounds);
+        }
 
         // Check for keyboard input and handle it.
         CheckKeyboardInput();
-        _player.Update(gameTime, _roomBounds);
         CheckGamepadInput();
+        _player.Update(gameTime, _roomBounds);
 
-        // Calculate the new position of the bat based on the velocity.
-        Vector2 newBatPosition = _batPosition + _batVelocity;
-
-        // Create a bounding circle for the bat.
-        Circle batBounds = new Circle(
-            (int)(newBatPosition.X + (_bat.Width * 0.5f)),
-            (int)(newBatPosition.Y + (_bat.Height * 0.5f)),
-            (int)(_bat.Width * 0.5f)
-        );
-
-        Vector2 normal = Vector2.Zero;
-
-        // Use distance based checks to determine if the bat is within the
-        // bounds of the game screen, and if it is outside that screen edge,
-        // reflect it about the screen edge normal.
-        if (batBounds.Left < _roomBounds.Left)
+        foreach (Enemy enemy in _enemies)
         {
-            normal.X = Vector2.UnitX.X;
-            newBatPosition.X = _roomBounds.Left;
-        }
-        else if (batBounds.Right > _roomBounds.Right)
-        {
-            normal.X = -Vector2.UnitX.X;
-            newBatPosition.X = _roomBounds.Right - _bat.Width;
-        }
+            foreach(Enemy otherEnemy in _enemies)
+            {
+                if(enemy != otherEnemy && enemy.Bounds.Intersects(otherEnemy.Bounds))
+                {
+                    Vector2 awayDirection = otherEnemy.Position - enemy.Position;
 
-        if (batBounds.Top < _roomBounds.Top)
-        {
-            normal.Y = Vector2.UnitY.Y;
-            newBatPosition.Y = _roomBounds.Top;
-        }
-        else if (batBounds.Bottom > _roomBounds.Bottom)
-        {
-            normal.Y = -Vector2.UnitY.Y;
-            newBatPosition.Y = _roomBounds.Bottom - _bat.Height;
-        }
+                    //Debug.WriteLine(awayDirection);
 
-        // If the normal is anything but Vector2.Zero, this means the bat had
-        // moved outside the screen edge so we should reflect it about the
-        // normal.
-        if (normal != Vector2.Zero)
-        {
-            normal.Normalize();
-            _batVelocity = Vector2.Reflect(_batVelocity, normal);
+                    if (awayDirection != Vector2.Zero) awayDirection.Normalize();
 
-            // Play the bounce sound effect.
-            Core.Audio.PlaySoundEffect(_bounceSoundEffect);
-        }
+                    enemy.ResetPosition(enemy.Position - awayDirection);
+                }
+            }
 
-        _batPosition = newBatPosition;
+            if (_player.Bounds.Intersects(enemy.Bounds))
+            {
+                // Change the bat position by setting the x and y values equal to
+                // the column and row multiplied by the width and height.
+                enemy.ResetPosition(GetRandomTile());
 
-        if (_player.Bounds.Intersects(batBounds))
-        {
-            // Choose a random row and column based on the total number of each
-            int column = Random.Shared.Next(1, _tilemap.Columns - 1);
-            int row = Random.Shared.Next(1, _tilemap.Rows - 1);
+                // Play the collect sound effect.
+                Core.Audio.PlaySoundEffect(_collectSoundEffect);
 
-            // Change the bat position by setting the x and y values equal to
-            // the column and row multiplied by the width and height.
-            _batPosition = new Vector2(column * _bat.Width, row * _bat.Height);
-
-            // Assign a new random velocity to the bat.
-            AssignRandomBatVelocity();
-
-            // Play the collect sound effect.
-            Core.Audio.PlaySoundEffect(_collectSoundEffect);
-
-            // Increase the player's score.
-            _score += 100;
-        }
+                // Increase the player's score.
+                _score += 100;
+            }
+        }    
     }
 
-    private void AssignRandomBatVelocity()
+    private Vector2 GetRandomTile()
     {
-        // Generate a random angle.
-        float angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
+        // Choose a random row and column based on the total number of each
+        int column = Random.Shared.Next(1, _tilemap.Columns - 1);
+        int row = Random.Shared.Next(1, _tilemap.Rows - 1);
 
-        // Convert angle to a direction vector.
-        float x = (float)Math.Cos(angle);
-        float y = (float)Math.Sin(angle);
-        Vector2 direction = new Vector2(x, y);
-
-        direction = Vector2.Normalize(direction);
-
-        // Multiply the direction vector by the movement speed.
-        _batVelocity = direction * MOVEMENT_SPEED;
+        return new Vector2(column * _tilemap.TileWidth, row * _tilemap.TileHeight);
     }
 
     private void PauseGame()
@@ -331,50 +289,6 @@ public class GameScene : Scene
             PauseGame();
             return;
         }
-
-        if (gamepadOne.IsButtonDown(Buttons.A))
-        {
-            speed *= 1.5f;
-            gamepadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));
-        }
-        else
-        {
-            GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
-        }
-
-        if (gamepadOne.LeftThumbStick != Vector2.Zero)
-        {
-            movementVector.X += gamepadOne.LeftThumbStick.X * speed;
-            movementVector.Y -= gamepadOne.LeftThumbStick.Y * speed;
-        }
-        else
-        {
-            if (gamepadOne.IsButtonDown(Buttons.DPadUp))
-            {
-                movementVector.Y -= speed;
-            }
-            if (gamepadOne.IsButtonDown(Buttons.DPadDown))
-            {
-                movementVector.Y += speed;
-            }
-            if (gamepadOne.IsButtonDown(Buttons.DPadLeft))
-            {
-                movementVector.X -= speed;
-            }
-            if (gamepadOne.IsButtonDown(Buttons.DPadRight))
-            {
-                movementVector.X += speed;
-            }
-        }
-
-        if (movementVector != Vector2.Zero)
-            movementVector = Vector2.Normalize(movementVector);
-
-        movementVector *= speed;
-        _slimePosition.Y += movementVector.Y;
-        _slimePosition.X += movementVector.X;
-
-        //Debug.WriteLine("Checking gamepad input");
     }
 
     public override void Draw(GameTime gameTime)
@@ -391,8 +305,10 @@ public class GameScene : Scene
         // Draw the slime sprite.
         _player.Draw();
 
-        // Draw the bat sprite.
-        _bat.Draw(Core.SpriteBatch, _batPosition);
+        foreach(Enemy enemy in _enemies)
+        {
+            enemy.Draw();
+        }
 
         // Draw the score.
         Core.SpriteBatch.DrawString(

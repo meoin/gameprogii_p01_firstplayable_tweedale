@@ -153,7 +153,7 @@ public class TitleScene : Scene
         }
 
         _textScaleModifier = (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds) * _maxTextScaleVariance;
-        Debug.WriteLine($"Textscalemod: {_textScaleModifier}");
+        //Debug.WriteLine($"Textscalemod: {_textScaleModifier}");
 
         // Update the offsets for the background pattern wrapping so that it
         // scrolls down and to the right.
