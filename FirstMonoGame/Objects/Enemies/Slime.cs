@@ -15,7 +15,7 @@ public class Slime : Enemy
 
     public Slime(int maxHealth, Vector2 position, AnimatedSprite sprite, Player player) : base("Slime", maxHealth, 0, 0, position, sprite)
     {
-        _moveStrategy = new FollowPlayerMoveStrategy(player);
+        _moveStrategy = new FollowPlayerMoveStrategy(player, this);
     }
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)

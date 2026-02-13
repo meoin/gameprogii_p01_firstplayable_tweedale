@@ -145,6 +145,7 @@ public class Player : Entity
             movementVector = Vector2.Normalize(movementVector);
         movementVector *= speed;
 
+        _lastMovementVector = movementVector;
         // Applying the movement vector to the slime
 
         _position = new Vector2(Position.X + movementVector.X, Position.Y + movementVector.Y);

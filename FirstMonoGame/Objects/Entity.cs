@@ -4,6 +4,7 @@ using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace FirstMonoGame.Objects;
 
@@ -24,7 +25,22 @@ public class Entity
         get => _position;
     }
     public AnimatedSprite Sprite { get; private set; }
-    public Circle Bounds { get; private set; }
+    public Circle Bounds 
+    { 
+        get => new Circle
+        (
+            (int)(Position.X + (Sprite.Width * 0.5f)),
+            (int)(Position.Y + (Sprite.Height * 0.5f)),
+            (int)(Sprite.Width * 0.5f)
+        );
+    }
+
+    protected Vector2 _lastMovementVector = new Vector2(0, 0);
+
+    public void SetLastMovementVector(Vector2 lastVector)
+    {
+        _lastMovementVector = lastVector;
+    }
 
     public Entity(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite)
     {
@@ -77,13 +93,6 @@ public class Entity
 
     private void RemainWithinRoomBounds(Rectangle roomBounds)
     {
-        // Creating a bounding circle for the entity.
-        Bounds = new Circle(
-            (int)(Position.X + (Sprite.Width * 0.5f)),
-            (int)(Position.Y + (Sprite.Height * 0.5f)),
-            (int)(Sprite.Width * 0.5f)
-        );
-
         // Use distance based checks to determine if the entity is within the
         // bounds of the game screen, and if it is outside that screen edge,
         // move it back inside.
@@ -104,6 +113,8 @@ public class Entity
         {
             _position.Y = roomBounds.Bottom - Sprite.Height;
         }
+
+        
     }
 
     public virtual void TakeDamage(int damage)
@@ -140,5 +151,38 @@ public class Entity
     public Vector2 GetCenter()
     {
         return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
+    }
+
+    public void BlockMovement(List<Obstacle> obstacles, Rectangle roomBounds)
+    {
+        foreach (Obstacle obstacle in obstacles)
+        {
+            if (Bounds.Intersects(obstacle.Bounds))
+            {
+                _position = PreviousPosition;
+
+                _position += new Vector2(_lastMovementVector.X, 0);
+
+                if (!Bounds.Intersects(obstacle.Bounds))
+                {
+                    RemainWithinRoomBounds(roomBounds);
+                    return;
+                }
+                else
+                {
+                    _position = PreviousPosition;
+                    _position += new Vector2(0, _lastMovementVector.Y);
+
+                    if (!Bounds.Intersects(obstacle.Bounds))
+                    {
+                        RemainWithinRoomBounds(roomBounds);
+                        return;
+                    }
+                    else _position = PreviousPosition;
+                }
+            }
+        }
+
+        
     }
 }

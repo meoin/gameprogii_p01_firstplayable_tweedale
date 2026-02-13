@@ -29,6 +29,9 @@ public class GameScene : Scene
     // Defines the bat animated sprite.
     private AnimatedSprite _bat;
 
+    // Defines a test obstacle sprite
+    private Sprite _obstacle;
+
     // Speed multiplier when moving.
     private const float MOVEMENT_SPEED = 5.0f;
 
@@ -79,7 +82,12 @@ public class GameScene : Scene
 
     private Player _player;
     private Sprite _swordSprite;
+    private List<Slime> _slimes;
+    private List<Bat> _bats;
     private List<Enemy> _enemies;
+    private List<Obstacle> _obstacles;
+
+    private bool _showHitboxes = false;
 
     public override void Initialize()
     {
@@ -107,22 +115,35 @@ public class GameScene : Scene
         // Initialize the player
         _player = new Player(5, playerPosition, _slime, _swordSprite);
 
+        _slimes = new List<Slime>();
+        _bats = new List<Bat>();
         _enemies = new List<Enemy>();
+        _obstacles = new List<Obstacle>();
 
         for (int i = 0; i < 3; i++)
         {
             // Initial slime position to a random position on the screen
             Vector2 slimePosition = GetRandomTile();
+            Slime slime = new Slime(5, slimePosition, new AnimatedSprite(_slime), _player);
 
-            _enemies.Add(new Slime(5, slimePosition, new AnimatedSprite(_slime), _player));
+            _slimes.Add(slime);
+            _enemies.Add(slime);
         }
 
         for (int i = 0; i < 2; i++)
         {
             // Initial bat position to a random position on the screen
             Vector2 batPosition = GetRandomTile();
+            Bat bat = new Bat(5, batPosition, new AnimatedSprite(_bat));
 
-            _enemies.Add(new Bat(5, batPosition, new AnimatedSprite(_bat)));
+            _bats.Add(bat);
+            _enemies.Add(bat);
+        }
+
+        // Add a test obstacle
+        for (int i = 0; i < 3; i++)
+        {
+            _obstacles.Add(new Obstacle(_obstacle, GetRandomTile()));
         }
 
         // Set the position of the score text to align to the left edge of the
@@ -163,6 +184,9 @@ public class GameScene : Scene
         _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
         _tilemap.Scale = new Vector2(4.0f, 4.0f);
 
+        // Create the obstacle sprite from the atlas
+        _obstacle = _atlas.CreateSprite("test-obstacle", 4.0f);
+
         // Load the bounce sound effect.
         _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce");
 
@@ -192,30 +216,36 @@ public class GameScene : Scene
             enemy.Update(gameTime, _roomBounds);
         }
 
+        foreach (Slime slime in _slimes)
+        {
+            slime.BlockMovement(_obstacles, _roomBounds);
+        }
+
         // Check for keyboard input and handle it.
         CheckKeyboardInput();
         CheckGamepadInput();
         _player.Update(gameTime, _roomBounds);
 
+        _player.BlockMovement(_obstacles, _roomBounds);
 
         // Loop through each enemy
         foreach (Enemy enemy in _enemies)
         {
             // Check if enemies are colliding with each other, if so push them away a bit
             // This is janky and needs to be improved tbh
-            foreach(Enemy otherEnemy in _enemies)
-            {
-                if(enemy != otherEnemy && enemy.Bounds.Intersects(otherEnemy.Bounds))
-                {
-                    Vector2 awayDirection = otherEnemy.Position - enemy.Position;
+            // foreach(Enemy otherEnemy in _enemies)
+            // {
+            //     if(enemy != otherEnemy && enemy.Bounds.Intersects(otherEnemy.Bounds))
+            //     {
+            //         Vector2 awayDirection = otherEnemy.Position - enemy.Position;
 
-                    //Debug.WriteLine(awayDirection);
+            //         //Debug.WriteLine(awayDirection);
 
-                    if (awayDirection != Vector2.Zero) awayDirection.Normalize();
+            //         if (awayDirection != Vector2.Zero) awayDirection.Normalize();
 
-                    enemy.ResetPosition(enemy.Position - awayDirection);
-                }
-            }
+            //         enemy.ResetPosition(enemy.Position - awayDirection);
+            //     }
+            // }
 
             // Check if player is sticking their sword out
             if (_player.SwordExtended)
@@ -285,6 +315,11 @@ public class GameScene : Scene
             Core.ToggleFullscreen();
         }
 
+        if (keyboard.WasKeyJustPressed(Keys.T))
+        {
+            _showHitboxes = !_showHitboxes;
+        }
+
         // Audio controls
 
         if (keyboard.WasKeyJustPressed(Keys.M))
@@ -340,15 +375,22 @@ public class GameScene : Scene
         // Draw the tilemap
         _tilemap.Draw(Core.SpriteBatch);
 
-        // Draw the slime sprite.
-        _player.Draw();
+        
 
-        if (_player.SwordExtended)
+        foreach (Obstacle obstacle in _obstacles)
         {
-            Core.DrawRectangleOutline(_player.SwordHitbox);
+            obstacle.Draw();
         }
 
-        foreach(Enemy enemy in _enemies)
+        foreach(Slime enemy in _slimes)
+        {
+            enemy.Draw();
+        }
+
+        // Draw the player sprite.
+        _player.Draw();
+
+        foreach (Bat enemy in _bats)
         {
             enemy.Draw();
         }
@@ -377,6 +419,15 @@ public class GameScene : Scene
             SpriteEffects.None, // effects
             0.0f                // layerDepth
         );
+
+        if (_showHitboxes)
+        {
+            foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
+            foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
+            if (_player.SwordExtended) Core.DrawRectangleOutline(_player.SwordHitbox);
+            Core.DrawRectangleOutline(_player.Bounds);
+            Core.DrawRectangleOutline(_roomBounds);
+        }
 
         // Always end the sprite batch when finished.
         Core.SpriteBatch.End();

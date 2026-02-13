@@ -303,4 +303,17 @@ public class Core : Game
                          new Rectangle(rect.X + rect.Width - borderWidth, rect.Y, borderWidth, rect.Height),
                          outlineColor);
     }
+
+    public static void DrawRectangleOutline(Circle circle)
+    {
+        Rectangle fakeRectangle = new Rectangle
+        (
+            (int)(circle.X - circle.Radius),
+            (int)(circle.Y - circle.Radius),
+            circle.Radius * 2,
+            circle.Radius * 2
+        );
+
+        DrawRectangleOutline(fakeRectangle);
+    }
 }

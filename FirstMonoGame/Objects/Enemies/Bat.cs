@@ -21,6 +21,8 @@ public class Bat : Enemy
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)
     {
+        PreviousPosition = _position;
+
         _position = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
 
         base.Update(gameTime, roomBounds);

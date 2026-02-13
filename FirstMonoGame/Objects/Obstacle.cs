@@ -24,13 +24,18 @@ public class Obstacle
         _position = position;
         Sprite = sprite;
         _isAnimated = false;
+
+        SetRectangle();
     }
 
     public Obstacle(AnimatedSprite sprite, Vector2 position)
     {
         _position = position;
         Sprite = sprite;
+        AnimatedSprite = sprite;
         _isAnimated = true;
+
+        SetRectangle();
     }
 
     public virtual void Update(GameTime gameTime, Rectangle roomBounds)
@@ -49,5 +54,15 @@ public class Obstacle
     public Vector2 GetCenter()
     {
         return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
+    }
+
+    private void SetRectangle()
+    {
+        Bounds = new Rectangle(
+                (int)Position.X,
+                (int)Position.Y,
+                (int)Sprite.Width,
+                (int)Sprite.Height
+            );
     }
 }

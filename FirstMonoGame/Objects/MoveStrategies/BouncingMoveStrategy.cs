@@ -27,26 +27,33 @@ internal class BouncingMoveStrategy : IMoveStrategy
 
         Vector2 normal = Vector2.Zero;
 
+        Circle bounds = new Circle
+        (
+           (int)(newPosition.X + (_enemy.Sprite.Width * 0.5f)),
+           (int)(newPosition.Y + (_enemy.Sprite.Height * 0.5f)),
+           (int)(_enemy.Sprite.Width * 0.5f)
+        );
+
         // Use distance based checks to determine if the bat is within the
         // _enemy.Bounds of the game screen, and if it is outside that screen edge,
         // reflect it about the screen edge normal.
-        if (_enemy.Bounds.Left < roomBounds.Left)
+        if (bounds.Left < roomBounds.Left)
         {
             normal.X = Vector2.UnitX.X;
             newPosition.X = roomBounds.Left;
         }
-        else if (_enemy.Bounds.Right > roomBounds.Right)
+        else if (bounds.Right > roomBounds.Right)
         {
             normal.X = -Vector2.UnitX.X;
             newPosition.X = roomBounds.Right - _enemy.Sprite.Width;
         }
 
-        if (_enemy.Bounds.Top < roomBounds.Top)
+        if (bounds.Top < roomBounds.Top)
         {
             normal.Y = Vector2.UnitY.Y;
             newPosition.Y = roomBounds.Top;
         }
-        else if (_enemy.Bounds.Bottom > roomBounds.Bottom)
+        else if (bounds.Bottom > roomBounds.Bottom)
         {
             normal.Y = -Vector2.UnitY.Y;
             newPosition.Y = roomBounds.Bottom - _enemy.Sprite.Height;

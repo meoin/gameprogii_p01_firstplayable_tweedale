@@ -9,9 +9,11 @@ namespace FirstMonoGame.Objects.MoveStrategies;
 internal class FollowPlayerMoveStrategy : IMoveStrategy
 {
     private Player _player;
-    public FollowPlayerMoveStrategy(Player player)
+    private Entity _entity;
+    public FollowPlayerMoveStrategy(Player player, Entity entity)
     {
         _player = player;
+        _entity = entity;
     }
 
     public Vector2 Move(Vector2 position, float speed, Rectangle roomBounds, GameTime gameTime)
@@ -24,6 +26,7 @@ internal class FollowPlayerMoveStrategy : IMoveStrategy
         }
 
         Vector2 velocity = movementDirection * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        _entity.SetLastMovementVector(velocity);
 
         Vector2 newPosition = position + velocity;
 
