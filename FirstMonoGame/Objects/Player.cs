@@ -12,28 +12,38 @@ namespace FirstMonoGame.Objects;
 public class Player : Entity
 {
     public Sprite SwordSprite { get; private set; }
+    private AnimatedSprite _deathSprite;
     private const float MOVEMENT_SPEED = 300.0f;
     public Vector2 FacingDirection = new Vector2(1, 0);
+    private bool _facingLeft = false;
     public bool SwordExtended { get; private set; } = false;
     public Rectangle SwordHitbox { get; private set; }
     private float _swordRotation = 0f;
+    private bool _dying = false;
+    public bool Dead { get; private set; } = false;
 
-    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite)
+    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite)
      : base( name, maxHealth, maxShield, startingShield, position, sprite)
     {
         SwordSprite = swordSprite;
+        _deathSprite = deathSprite;
     }
 
-    public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, Sprite swordSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
+    public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
     {
         SwordSprite = swordSprite;
+        _deathSprite = deathSprite;
     }
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)
     {
         PreviousPosition = Position;
-
-        PlayerMovement(gameTime);
+        if (!_dying) PlayerMovement(gameTime);
+        else
+        {
+            _deathSprite.Update(gameTime);
+            if (_deathSprite.OnLastFrame()) Dead = true;
+        }
 
         base.Update(gameTime, roomBounds);
     }
@@ -48,12 +58,27 @@ public class Player : Entity
             SwordSprite.Draw(Core.SpriteBatch, swordPosition + FacingDirection);
         }
 
-        base.Draw();
+        if (_facingLeft)
+        {
+            Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+        }
+        else Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+
+        if (!_dying) base.Draw();
+        else
+        {
+            _deathSprite.Draw(Core.SpriteBatch, Position);
+        }
     }
 
     public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
+
+        if (Health.CurrentHealth <= 0)
+        {
+            _dying = true;
+        }
     }
 
     private void PlayerMovement(GameTime gameTime)
@@ -117,6 +142,8 @@ public class Player : Entity
             FacingDirection = new Vector2(Sprite.Width * -0.5f, 0);
             _swordRotation = 180f;
 
+            _facingLeft = true;
+
             SwordHitbox = new Rectangle(
                 (int)(Position.X - SwordSprite.Width),
                 (int)(Position.Y + Sprite.Height * 0.5f - SwordSprite.Height * 0.5f),
@@ -130,6 +157,8 @@ public class Player : Entity
             movementVector.X += speed;
             FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
             _swordRotation = 0f;
+
+            _facingLeft = false;
 
             SwordHitbox = new Rectangle(
                 (int)(Position.X + Sprite.Width),

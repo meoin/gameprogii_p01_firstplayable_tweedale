@@ -152,6 +152,11 @@ public class TitleScene : Scene
             Core.ToggleFullscreen();
         }
 
+        if (Core.Input.Keyboard.WasKeyJustPressed(Keys.M))
+        {
+            Core.Audio.ToggleMute();
+        }
+
         _textScaleModifier = (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds) * _maxTextScaleVariance;
         //Debug.WriteLine($"Textscalemod: {_textScaleModifier}");
 
@@ -282,7 +287,7 @@ public class TitleScene : Scene
         musicSlider.Y = 30f;
         musicSlider.Minimum = 0;
         musicSlider.Maximum = 1;
-        musicSlider.Value = Core.Audio.SongVolume;
+        musicSlider.Value = Core.Audio.MusicVolume;
         musicSlider.SmallChange = .1;
         musicSlider.LargeChange = .2;
         musicSlider.ValueChanged += HandleMusicSliderValueChanged;
@@ -296,7 +301,7 @@ public class TitleScene : Scene
         sfxSlider.Y = 93;
         sfxSlider.Minimum = 0;
         sfxSlider.Maximum = 1;
-        sfxSlider.Value = Core.Audio.SoundEffectVolume;
+        sfxSlider.Value = Core.Audio.SfxVolume;
         sfxSlider.SmallChange = .1;
         sfxSlider.LargeChange = .2;
         sfxSlider.ValueChanged += HandleSfxSliderChanged;

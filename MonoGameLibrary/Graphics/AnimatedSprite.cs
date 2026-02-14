@@ -72,4 +72,9 @@ public class AnimatedSprite : Sprite
             Region = _animation.Frames[_currentFrame];
         }
     }
+
+    public bool OnLastFrame()
+    {
+        return _currentFrame >= _animation.Frames.Count - 1;
+    }
 }

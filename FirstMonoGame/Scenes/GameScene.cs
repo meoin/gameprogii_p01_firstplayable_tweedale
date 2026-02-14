@@ -24,10 +24,19 @@ namespace FirstMonoGame.Scenes;
 public class GameScene : Scene
 {
     // Defines the slime animated sprite.
-    private AnimatedSprite _slime;
+    private AnimatedSprite _slimeSprite;
 
     // Defines the bat animated sprite.
-    private AnimatedSprite _bat;
+    private AnimatedSprite _batSprite;
+
+    // Defines the player animated sprite.
+    private AnimatedSprite _playerSprite;
+
+    // Defines the player death animated sprite.
+    private AnimatedSprite _playerDeathSprite;
+
+    // Defines the bat animated sprite.
+    private Sprite _swordSprite;
 
     // Defines a test obstacle sprite
     private Sprite _obstacle;
@@ -81,11 +90,11 @@ public class GameScene : Scene
     private TextureAtlas _atlas;
 
     private Player _player;
-    private Sprite _swordSprite;
     private List<Slime> _slimes;
     private List<Bat> _bats;
     private List<Enemy> _enemies;
     private List<Obstacle> _obstacles;
+    private List<Vector2> _slimeSpawns;
 
     private bool _showHitboxes = false;
 
@@ -110,21 +119,27 @@ public class GameScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        Vector2 playerPosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
+        Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow+2) * _tilemap.TileHeight);
 
         // Initialize the player
-        _player = new Player(5, playerPosition, _slime, _swordSprite);
+        _player = new Player(5, playerPosition, _playerSprite, _swordSprite, _playerDeathSprite);
 
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
         _enemies = new List<Enemy>();
         _obstacles = new List<Obstacle>();
 
+        _slimeSpawns = new List<Vector2>
+        {
+            new Vector2(_roomBounds.Left + _slimeSprite.Width, _roomBounds.Top - _slimeSprite.Height),
+            new Vector2(_roomBounds.Width/2, _roomBounds.Top - _slimeSprite.Height),
+            new Vector2(_roomBounds.Right - _slimeSprite.Width, _roomBounds.Top - _slimeSprite.Height),
+        };
+
         for (int i = 0; i < 3; i++)
         {
             // Initial slime position to a random position on the screen
-            Vector2 slimePosition = GetRandomTile();
-            Slime slime = new Slime(5, slimePosition, new AnimatedSprite(_slime), _player);
+            Slime slime = new Slime(5, _slimeSpawns[i], new AnimatedSprite(_slimeSprite), _player);
 
             _slimes.Add(slime);
             _enemies.Add(slime);
@@ -134,17 +149,20 @@ public class GameScene : Scene
         {
             // Initial bat position to a random position on the screen
             Vector2 batPosition = GetRandomTile();
-            Bat bat = new Bat(5, batPosition, new AnimatedSprite(_bat));
+            Bat bat = new Bat(5, batPosition, new AnimatedSprite(_batSprite));
 
             _bats.Add(bat);
             _enemies.Add(bat);
         }
 
+        int centerX = _tilemap.Columns/2;
+        int centerY = _tilemap.Rows/2;
+
         // Add a test obstacle
-        for (int i = 0; i < 3; i++)
-        {
-            _obstacles.Add(new Obstacle(_obstacle, GetRandomTile()));
-        }
+        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow)));
+        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow)));
+        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow - 1)));
+        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow - 1)));
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -168,17 +186,21 @@ public class GameScene : Scene
         // Create the texture atlas from the XML configuration file
         _atlas = TextureAtlas.FromFile(Core.Content, "images/atlas-definition.xml");
 
-        // Create the slime animated sprite from the atlas.
-        _slime = _atlas.CreateAnimatedSprite("slime-animation");
-        _slime.Scale = new Vector2(4.0f, 4.0f);
+        // Create the player animated sprite and death sprite from the atlas.
+        _playerSprite = _atlas.CreateAnimatedSprite("player-animation", 4.0f);
+        _playerDeathSprite = _atlas.CreateAnimatedSprite("player-dying-animation", 4.0f);
 
-        _swordSprite = _atlas.CreateSprite("unfocused-button");
+        // Create the slime animated sprite from the atlas.
+        _slimeSprite = _atlas.CreateAnimatedSprite("slime-animation");
+        _slimeSprite.Scale = new Vector2(4.0f, 4.0f);
+
+        _swordSprite = _atlas.CreateSprite("sword");
         _swordSprite.Origin = new Vector2(0, _swordSprite.Region.Height * 0.5f);
-        _swordSprite.Scale = new Vector2(2.0f, 2.0f);
+        _swordSprite.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the bat animated sprite from the atlas.
-        _bat = _atlas.CreateAnimatedSprite("bat-animation");
-        _bat.Scale = new Vector2(4.0f, 4.0f);
+        _batSprite = _atlas.CreateAnimatedSprite("bat-animation");
+        _batSprite.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the tilemap from the XML configuration file.
         _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
@@ -270,20 +292,35 @@ public class GameScene : Scene
                 if (!_player.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
 
                 _player.TakeDamage(1);
-
-                if (_player.Health.CurrentHealth <= 0)
-                {
-                    Core.ChangeScene(new TitleScene());
-                }
             }   
         } 
+
+        if (_player.Dead) Core.ChangeScene(new TitleScene());
     }
 
     private Vector2 GetRandomTile()
     {
+        Vector2 targetPosition = new Vector2(0, 0);
+
+        while(true)
+        {
+            // Choose a random row and column based on the total number of each
+            int column = Random.Shared.Next(1, _tilemap.Columns - 1);
+            int row = Random.Shared.Next(1, _tilemap.Rows - 1);
+
+            targetPosition = new Vector2(column * _tilemap.TileWidth, row * _tilemap.TileHeight);
+
+            if (Vector2.Distance(targetPosition, _player.Position) > _player.Bounds.Radius * 5) break;
+        }
+
+        return targetPosition;
+    }
+
+    private Vector2 GetSpecificTile(int x, int y)
+    {
         // Choose a random row and column based on the total number of each
-        int column = Random.Shared.Next(1, _tilemap.Columns - 1);
-        int row = Random.Shared.Next(1, _tilemap.Rows - 1);
+        int column = Math.Clamp(x, 1, _tilemap.Columns - 1);
+        int row = Math.Clamp(y, 1, _tilemap.Columns - 1);
 
         return new Vector2(column * _tilemap.TileWidth, row * _tilemap.TileHeight);
     }

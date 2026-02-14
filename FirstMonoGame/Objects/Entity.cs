@@ -155,21 +155,27 @@ public class Entity
 
     public void BlockMovement(List<Obstacle> obstacles, Rectangle roomBounds)
     {
+        // Check each obstacle
         foreach (Obstacle obstacle in obstacles)
         {
+            // If entity is colliding with the obstacle, revert them to their previous position
             if (Bounds.Intersects(obstacle.Bounds))
             {
                 _position = PreviousPosition;
 
+                // Try moving the entity in the X axis that they were trying to move without the Y axis
                 _position += new Vector2(_lastMovementVector.X, 0);
 
                 if (!Bounds.Intersects(obstacle.Bounds))
                 {
+                    // Ensure entity is still remaining within the bounds of the room
                     RemainWithinRoomBounds(roomBounds);
                     return;
                 }
                 else
                 {
+                    // If moving horizontally still collides then
+                    // Revert back to previous position and then try moving the entity in the Y axis that they were trying to move without the X axis
                     _position = PreviousPosition;
                     _position += new Vector2(0, _lastMovementVector.Y);
 
@@ -178,6 +184,7 @@ public class Entity
                         RemainWithinRoomBounds(roomBounds);
                         return;
                     }
+                    // If both directions lead to a collision then just keep them at their original position
                     else _position = PreviousPosition;
                 }
             }

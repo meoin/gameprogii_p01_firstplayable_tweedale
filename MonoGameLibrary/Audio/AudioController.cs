@@ -20,8 +20,8 @@ public class AudioController : IDisposable
     // Tracks the master volume multiplier that affects both Music and Sound Effects
     // As well as the music and sound effect volumes themselves
     private float _masterVolume;
-    private float _musicVolume = 1f;
-    private float _sfxVolume = 1f;
+    public float MusicVolume = 1f;
+    public float SfxVolume = 1f;
 
     /// <summary>
     /// Gets a value that indicates if audio is muted.
@@ -298,36 +298,36 @@ public class AudioController : IDisposable
 
     public void SetMusicVolume(float volume)
     {
-        _musicVolume = Math.Clamp(volume, 0.0f, 1.0f);
+        MusicVolume = Math.Clamp(volume, 0.0f, 1.0f);
 
-        Debug.WriteLine($"Setting music volume to: {_musicVolume}");
+        Debug.WriteLine($"Setting music volume to: {MusicVolume}");
 
         UpdateVolumes();
     }
 
     public void ChangeMusicVolume(float volumeChange)
     {
-        SetMusicVolume(_musicVolume + volumeChange);
+        SetMusicVolume(MusicVolume + volumeChange);
     }
 
     public void SetSoundEffectVolume(float volume)
     {
-        _sfxVolume = Math.Clamp(volume, 0.0f, 1.0f);
+        SfxVolume = Math.Clamp(volume, 0.0f, 1.0f);
 
-        Debug.WriteLine($"Setting sound effect volume to: {_sfxVolume}");
+        Debug.WriteLine($"Setting sound effect volume to: {SfxVolume}");
 
         UpdateVolumes();
     }
 
     public void ChangeSoundEffectVolume(float volumeChange)
     {
-        SetSoundEffectVolume(_sfxVolume + volumeChange);
+        SetSoundEffectVolume(SfxVolume + volumeChange);
     }
 
     public void UpdateVolumes()
     {
-        MediaPlayer.Volume = _musicVolume * _masterVolume;
-        SoundEffect.MasterVolume = _sfxVolume * _masterVolume;
+        MediaPlayer.Volume = MusicVolume * _masterVolume;
+        SoundEffect.MasterVolume = SfxVolume * _masterVolume;
     }
 
     /// <summary>
