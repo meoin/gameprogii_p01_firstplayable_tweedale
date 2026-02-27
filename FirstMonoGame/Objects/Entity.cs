@@ -25,13 +25,14 @@ public class Entity
         get => _position;
     }
     public AnimatedSprite Sprite { get; private set; }
-    public Circle Bounds 
+    public Rectangle Bounds 
     { 
-        get => new Circle
+        get => new Rectangle
         (
-            (int)(Position.X + (Sprite.Width * 0.5f)),
-            (int)(Position.Y + (Sprite.Height * 0.5f)),
-            (int)(Sprite.Width * 0.5f)
+            (int)(Position.X + (Sprite.Width * 0.25f)),
+            (int)(Position.Y + (Sprite.Height * 0.25f)),
+            (int)(Sprite.Width * 0.5f),
+            (int)(Sprite.Height * 0.5f)
         );
     }
 

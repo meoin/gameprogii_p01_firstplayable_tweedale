@@ -115,7 +115,7 @@ public class Player : Entity
             _swordRotation = 270f;
 
             SwordHitbox = new Rectangle(
-                (int)(Position.X + Sprite.Width * 0.5f - SwordSprite.Height * 0.5f),
+                (int)(Position.X - SwordSprite.Height * 0.5f),
                 (int)(Position.Y - SwordSprite.Width),
                 (int)SwordSprite.Height,
                 (int)SwordSprite.Width
@@ -129,7 +129,7 @@ public class Player : Entity
             _swordRotation = 90f;
 
             SwordHitbox = new Rectangle(
-                (int)(Position.X + Sprite.Width * 0.5f - SwordSprite.Height * 0.5f),
+                (int)(Position.X - SwordSprite.Height * 0.5f),
                 (int)(Position.Y + Sprite.Height),
                 (int)SwordSprite.Height,
                 (int)SwordSprite.Width
@@ -146,7 +146,7 @@ public class Player : Entity
 
             SwordHitbox = new Rectangle(
                 (int)(Position.X - SwordSprite.Width),
-                (int)(Position.Y + Sprite.Height * 0.5f - SwordSprite.Height * 0.5f),
+                (int)(Position.Y - SwordSprite.Height * 0.5f),
                 (int)SwordSprite.Width,
                 (int)SwordSprite.Height
             );

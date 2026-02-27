@@ -236,12 +236,13 @@ public class GameScene : Scene
         foreach (Enemy enemy in _enemies)
         {
             enemy.Update(gameTime, _roomBounds);
+            enemy.BlockMovement(_obstacles, _roomBounds);
         }
 
-        foreach (Slime slime in _slimes)
-        {
-            slime.BlockMovement(_obstacles, _roomBounds);
-        }
+        // foreach (Slime slime in _slimes)
+        // {
+        //     slime.BlockMovement(_obstacles, _roomBounds);
+        // }
 
         // Check for keyboard input and handle it.
         CheckKeyboardInput();
@@ -253,22 +254,6 @@ public class GameScene : Scene
         // Loop through each enemy
         foreach (Enemy enemy in _enemies)
         {
-            // Check if enemies are colliding with each other, if so push them away a bit
-            // This is janky and needs to be improved tbh
-            // foreach(Enemy otherEnemy in _enemies)
-            // {
-            //     if(enemy != otherEnemy && enemy.Bounds.Intersects(otherEnemy.Bounds))
-            //     {
-            //         Vector2 awayDirection = otherEnemy.Position - enemy.Position;
-
-            //         //Debug.WriteLine(awayDirection);
-
-            //         if (awayDirection != Vector2.Zero) awayDirection.Normalize();
-
-            //         enemy.ResetPosition(enemy.Position - awayDirection);
-            //     }
-            // }
-
             // Check if player is sticking their sword out
             if (_player.SwordExtended)
             {
@@ -310,7 +295,7 @@ public class GameScene : Scene
 
             targetPosition = new Vector2(column * _tilemap.TileWidth, row * _tilemap.TileHeight);
 
-            if (Vector2.Distance(targetPosition, _player.Position) > _player.Bounds.Radius * 5) break;
+            if (Vector2.Distance(targetPosition, _player.Position) > _player.Bounds.Width * 10) break;
         }
 
         return targetPosition;
@@ -388,10 +373,6 @@ public class GameScene : Scene
     private void CheckGamepadInput()
     {
         GamePadInfo gamepadOne = Core.Input.GamePads[(int)PlayerIndex.One];
-
-        float speed = MOVEMENT_SPEED;
-
-        Vector2 movementVector = Vector2.Zero;
 
         // If the start button is pressed, pause the game
         if (gamepadOne.WasButtonJustPressed(Buttons.Start))
