@@ -96,6 +96,10 @@ public class GameScene : Scene
     private List<Obstacle> _obstacles;
     private List<Vector2> _slimeSpawns;
 
+    private FollowCamera _camera;
+    private Matrix _translation;
+    private Rectangle _roomSize;
+
     private bool _showHitboxes = false;
 
     public override void Initialize()
@@ -109,12 +113,21 @@ public class GameScene : Scene
 
         Rectangle screenBounds = Core.Bounds;
 
+        _camera = new FollowCamera(Core.Bounds);
+
         _roomBounds = new Rectangle(
-             (int)_tilemap.TileWidth,
-             (int)_tilemap.TileHeight,
-             screenBounds.Width - (int)_tilemap.TileWidth * 2,
-             screenBounds.Height - (int)_tilemap.TileHeight * 2
+            (int)_tilemap.TileWidth,
+            (int)_tilemap.TileHeight,
+            (int)(_tilemap.TileWidth * _tilemap.Columns - _tilemap.TileWidth*2),
+            (int)(_tilemap.TileHeight * _tilemap.Rows - _tilemap.TileHeight*2)
          );
+
+        _roomSize = new Rectangle(
+            0,
+            0,
+            (int)_tilemap.TileWidth * _tilemap.Columns,
+            (int)_tilemap.TileHeight * _tilemap.Rows
+        );
 
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
@@ -166,9 +179,9 @@ public class GameScene : Scene
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
-        _scoreTextPosition = new Vector2(_roomBounds.Left, _tilemap.TileHeight * 0.5f);
+        _scoreTextPosition = new Vector2(Core.Bounds.Left, _tilemap.TileHeight * 0.5f);
 
-        _healthTextPosition = new Vector2(_roomBounds.Right, _tilemap.TileHeight * 0.5f);
+        _healthTextPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 0.5f);
 
         // Set the origin of the text so it is left-centered.
         float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
@@ -293,7 +306,10 @@ public class GameScene : Scene
 
                 _player.TakeDamage(1);
             }   
-        } 
+        }
+
+        _camera.Follow(_player.Position, _roomSize);
+        CalculateTranslation(_camera);
 
         if (_player.Dead) Core.ChangeScene(new TitleScene());
     }
@@ -401,78 +417,6 @@ public class GameScene : Scene
         }
     }
 
-    public override void Draw(GameTime gameTime)
-    {
-        // Clear the back buffer.
-        Core.GraphicsDevice.Clear(Core.BackgroundColor);
-
-        // Begin the sprite batch to prepare for rendering.
-        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
-        // Draw the tilemap
-        _tilemap.Draw(Core.SpriteBatch);
-
-        
-
-        foreach (Obstacle obstacle in _obstacles)
-        {
-            obstacle.Draw();
-        }
-
-        foreach(Slime enemy in _slimes)
-        {
-            enemy.Draw();
-        }
-
-        // Draw the player sprite.
-        _player.Draw();
-
-        foreach (Bat enemy in _bats)
-        {
-            enemy.Draw();
-        }
-
-        // Draw the score.
-        Core.SpriteBatch.DrawString(
-            _font,              // spriteFont
-            $"Score: {_score}", // text
-            _scoreTextPosition, // position
-            Color.White,        // color
-            0.0f,               // rotation
-            _scoreTextOrigin,   // origin
-            1.0f,               // scale
-            SpriteEffects.None, // effects
-            0.0f                // layerDepth
-        );
-
-        Core.SpriteBatch.DrawString(
-            _font,              // spriteFont
-            $"HP: {_player.Health.CurrentHealth}", // text
-            _healthTextPosition, // position
-            Color.White,        // color
-            0.0f,               // rotation
-            _healthTextOrigin,   // origin
-            1.0f,               // scale
-            SpriteEffects.None, // effects
-            0.0f                // layerDepth
-        );
-
-        if (_showHitboxes)
-        {
-            foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
-            foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
-            if (_player.SwordExtended) Core.DrawRectangleOutline(_player.SwordHitbox);
-            Core.DrawRectangleOutline(_player.Bounds);
-            Core.DrawRectangleOutline(_roomBounds);
-        }
-
-        // Always end the sprite batch when finished.
-        Core.SpriteBatch.End();
-
-        // Draw the Gum UI
-        GumService.Default.Draw();
-    }
-
     private void InitializeUI()
     {
         GumService.Default.Root.Children.Clear();
@@ -547,5 +491,87 @@ public class GameScene : Scene
 
         // Go back to the title scene.
         Core.ChangeScene(new TitleScene());
+    }
+
+    private void CalculateTranslation(FollowCamera camera)
+    {
+        var dx = (Core.Bounds.Width / 2) - camera.Position.X;
+        var dy = (Core.Bounds.Height / 2) - camera.Position.Y;
+        _translation = Matrix.CreateTranslation(dx, dy, 0);
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        // Clear the back buffer.
+        Core.GraphicsDevice.Clear(Core.BackgroundColor);
+
+        // Begin the sprite batch to prepare for rendering.
+        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: _translation);
+
+        // Draw the tilemap
+        _tilemap.Draw(Core.SpriteBatch);
+
+
+
+        foreach (Obstacle obstacle in _obstacles)
+        {
+            obstacle.Draw();
+        }
+
+        foreach (Slime enemy in _slimes)
+        {
+            enemy.Draw();
+        }
+
+        // Draw the player sprite.
+        _player.Draw();
+
+        foreach (Bat enemy in _bats)
+        {
+            enemy.Draw();
+        }
+
+        if (_showHitboxes)
+        {
+            foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
+            foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
+            if (_player.SwordExtended) Core.DrawRectangleOutline(_player.SwordHitbox);
+            Core.DrawRectangleOutline(_player.Bounds);
+            Core.DrawRectangleOutline(_roomBounds);
+        }
+
+        // Restart the spritebatch for UI elements to not use the translation matrix
+        Core.SpriteBatch.End();
+        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        // Draw the score.
+        Core.SpriteBatch.DrawString(
+            _font,              // spriteFont
+            $"Score: {_score}", // text
+            _scoreTextPosition, // position
+            Color.Red,        // color
+            0.0f,               // rotation
+            _scoreTextOrigin,   // origin
+            1.0f,               // scale
+            SpriteEffects.None, // effects
+            0.0f                // layerDepth
+        );
+
+        Core.SpriteBatch.DrawString(
+            _font,              // spriteFont
+            $"HP: {_player.Health.CurrentHealth}", // text
+            _healthTextPosition, // position
+            Color.Red,        // color
+            0.0f,               // rotation
+            _healthTextOrigin,   // origin
+            1.0f,               // scale
+            SpriteEffects.None, // effects
+            0.0f                // layerDepth
+        );
+
+        Core.SpriteBatch.End();
+
+        // Draw the Gum UI
+        GumService.Default.Draw();
     }
 }

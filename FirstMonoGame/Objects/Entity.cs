@@ -87,8 +87,6 @@ public class Entity
             else Sprite.Draw(Core.SpriteBatch, Position);
         } 
         else Sprite.Draw(Core.SpriteBatch, Position);
-
-
     }
 
     private void RemainWithinRoomBounds(Rectangle roomBounds)

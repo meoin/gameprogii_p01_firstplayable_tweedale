@@ -22,6 +22,8 @@ public class Player : Entity
     private bool _dying = false;
     public bool Dead { get; private set; } = false;
 
+    public Rectangle Rect;
+
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite)
      : base( name, maxHealth, maxShield, startingShield, position, sprite)
     {
@@ -44,6 +46,13 @@ public class Player : Entity
             _deathSprite.Update(gameTime);
             if (_deathSprite.OnLastFrame()) Dead = true;
         }
+
+        Rect = new Rectangle(
+            (int)Position.X,
+            (int)Position.Y,
+            Bounds.Radius * 2,
+            Bounds.Radius * 2
+        );
 
         base.Update(gameTime, roomBounds);
     }
