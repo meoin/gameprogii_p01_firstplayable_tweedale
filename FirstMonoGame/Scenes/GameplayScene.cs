@@ -21,7 +21,7 @@ using System.Diagnostics;
 
 namespace FirstMonoGame.Scenes;
 
-public class GameScene : Scene
+public class GameplayScene : Scene
 {
     // Defines the slime animated sprite.
     private AnimatedSprite _slimeSprite;
@@ -104,6 +104,8 @@ public class GameScene : Scene
 
     private bool _pauseEnemiesForTesting = false;
 
+    private TilemapAtlas _tilemapAtlas;
+
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -120,8 +122,8 @@ public class GameScene : Scene
         _roomBounds = new Rectangle(
             (int)_tilemap.TileWidth,
             (int)_tilemap.TileHeight,
-            (int)(_tilemap.TileWidth * _tilemap.Columns - _tilemap.TileWidth*2),
-            (int)(_tilemap.TileHeight * _tilemap.Rows - _tilemap.TileHeight*2)
+            (int)(_tilemap.TileWidth * _tilemap.Columns - _tilemap.TileWidth * 2),
+            (int)(_tilemap.TileHeight * _tilemap.Rows - _tilemap.TileHeight * 2)
          );
 
         _roomSize = new Rectangle(
@@ -134,7 +136,7 @@ public class GameScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow+2) * _tilemap.TileHeight);
+        Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
 
         // Initialize the player
         _player = new Player(5, playerPosition, _playerSprite, _swordSprite, _playerDeathSprite);
@@ -170,8 +172,8 @@ public class GameScene : Scene
             _enemies.Add(bat);
         }
 
-        int centerX = _tilemap.Columns/2;
-        int centerY = _tilemap.Rows/2;
+        int centerX = _tilemap.Columns / 2;
+        int centerY = _tilemap.Rows / 2;
 
         // Add a test obstacle
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow)));
@@ -215,9 +217,11 @@ public class GameScene : Scene
         // Create the bat animated sprite from the atlas.
         _batSprite = _atlas.CreateAnimatedSprite("bat-animation", 4.0f);
 
+        _tilemapAtlas = TilemapAtlas.FromFile(Content, "images/tilemap-definition.xml");
+        _tilemapAtlas.Scale = new Vector2(4.0f, 4.0f);
+
         // Create the tilemap from the XML configuration file.
-        _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
-        _tilemap.Scale = new Vector2(4.0f, 4.0f);
+        _tilemap = _tilemapAtlas.GetTilemap("room-1");
 
         // Create the obstacle sprite from the atlas
         _obstacle = _atlas.CreateSprite("test-obstacle", 4.0f);
@@ -308,7 +312,7 @@ public class GameScene : Scene
                 if (!_player.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
 
                 _player.TakeDamage(1);
-            }   
+            }
         }
 
         _camera.Follow(_player.Position, _roomSize);
@@ -321,7 +325,7 @@ public class GameScene : Scene
     {
         Vector2 targetPosition = new Vector2(0, 0);
 
-        while(true)
+        while (true)
         {
             // Choose a random row and column based on the total number of each
             int column = Random.Shared.Next(1, _tilemap.Columns - 1);
@@ -364,6 +368,11 @@ public class GameScene : Scene
         {
             PauseGame();
             return;
+        }
+
+        if (keyboard.WasKeyJustPressed(Keys.N))
+        {
+            Core.ChangeScene(new Room1());
         }
 
         if (keyboard.WasKeyJustPressed(Keys.P))
