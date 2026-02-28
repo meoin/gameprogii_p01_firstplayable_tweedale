@@ -102,6 +102,8 @@ public class GameScene : Scene
 
     private bool _showHitboxes = false;
 
+    private bool _pauseEnemiesForTesting = false;
+
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -204,16 +206,14 @@ public class GameScene : Scene
         _playerDeathSprite = _atlas.CreateAnimatedSprite("player-dying-animation", 4.0f);
 
         // Create the slime animated sprite from the atlas.
-        _slimeSprite = _atlas.CreateAnimatedSprite("slime-animation");
-        _slimeSprite.Scale = new Vector2(4.0f, 4.0f);
+        _slimeSprite = _atlas.CreateAnimatedSprite("slime-animation", 4.0f);
 
         _swordSprite = _atlas.CreateSprite("sword");
         _swordSprite.Origin = new Vector2(0, _swordSprite.Region.Height * 0.5f);
         _swordSprite.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the bat animated sprite from the atlas.
-        _batSprite = _atlas.CreateAnimatedSprite("bat-animation");
-        _batSprite.Scale = new Vector2(4.0f, 4.0f);
+        _batSprite = _atlas.CreateAnimatedSprite("bat-animation", 4.0f);
 
         // Create the tilemap from the XML configuration file.
         _tilemap = Tilemap.FromFile(Content, "images/tilemap-definition.xml");
@@ -246,9 +246,12 @@ public class GameScene : Scene
             return;
         }
 
-        foreach (Enemy enemy in _enemies)
+        if (!_pauseEnemiesForTesting)
         {
-            enemy.Update(gameTime, _roomBounds);
+            foreach (Enemy enemy in _enemies)
+            {
+                enemy.Update(gameTime, _roomBounds);
+            }
         }
 
         foreach (Slime slime in _slimes)
@@ -283,10 +286,10 @@ public class GameScene : Scene
             // }
 
             // Check if player is sticking their sword out
-            if (_player.SwordExtended)
+            if (_player.WeaponExtended)
             {
                 // If the enemy is touching the swords hitbox, set them to a new position and gain score
-                if (enemy.Bounds.Intersects(_player.SwordHitbox))
+                if (enemy.Bounds.Intersects(_player.Weapon.Hitbox))
                 {
                     // Change the bat position by setting the x and y values equal to
                     // the column and row multiplied by the width and height.
@@ -361,6 +364,11 @@ public class GameScene : Scene
         {
             PauseGame();
             return;
+        }
+
+        if (keyboard.WasKeyJustPressed(Keys.P))
+        {
+            _pauseEnemiesForTesting = !_pauseEnemiesForTesting;
         }
 
         if (keyboard.WasKeyJustPressed(Keys.F))
@@ -535,7 +543,7 @@ public class GameScene : Scene
         {
             foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
             foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
-            if (_player.SwordExtended) Core.DrawRectangleOutline(_player.SwordHitbox);
+            if (_player.WeaponExtended) Core.DrawRectangleOutline(_player.Weapon.Hitbox);
             Core.DrawRectangleOutline(_player.Bounds);
             Core.DrawRectangleOutline(_roomBounds);
         }

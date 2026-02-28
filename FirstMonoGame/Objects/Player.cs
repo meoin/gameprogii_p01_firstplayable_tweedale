@@ -11,30 +11,32 @@ namespace FirstMonoGame.Objects;
 
 public class Player : Entity
 {
-    public Sprite SwordSprite { get; private set; }
     private AnimatedSprite _deathSprite;
     private const float MOVEMENT_SPEED = 300.0f;
-    public Vector2 FacingDirection = new Vector2(1, 0);
+    public Vector2 FacingDirection;
     private bool _facingLeft = false;
-    public bool SwordExtended { get; private set; } = false;
-    public Rectangle SwordHitbox { get; private set; }
-    private float _swordRotation = 0f;
+    public bool WeaponExtended { get; private set; } = false;
     private bool _dying = false;
     public bool Dead { get; private set; } = false;
-
-    public Rectangle Rect;
+    public Weapon Weapon;
 
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite)
      : base( name, maxHealth, maxShield, startingShield, position, sprite)
     {
-        SwordSprite = swordSprite;
+        Weapon = new Weapon(swordSprite, Position);
         _deathSprite = deathSprite;
+        FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
+
+        Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
     }
 
     public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
     {
-        SwordSprite = swordSprite;
+        Weapon = new Weapon(swordSprite, Position);
         _deathSprite = deathSprite;
+        FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
+
+        Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
     }
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)
@@ -47,24 +49,14 @@ public class Player : Entity
             if (_deathSprite.OnLastFrame()) Dead = true;
         }
 
-        Rect = new Rectangle(
-            (int)Position.X,
-            (int)Position.Y,
-            Bounds.Radius * 2,
-            Bounds.Radius * 2
-        );
-
         base.Update(gameTime, roomBounds);
     }
 
     public override void Draw()
     {
-        if (SwordExtended)
+        if (WeaponExtended)
         {
-            Debug.WriteLine(FacingDirection);
-            Vector2 swordPosition = GetCenter();
-            SwordSprite.Rotation = MathHelper.ToRadians(_swordRotation);
-            SwordSprite.Draw(Core.SpriteBatch, swordPosition + FacingDirection);
+            Weapon.Draw();
         }
 
         if (_facingLeft)
@@ -105,76 +97,52 @@ public class Player : Entity
         if (keyboard.IsKeyDown(Keys.Space))
         {
             speed *= 0.5f;
-            SwordExtended = true;
+            WeaponExtended = true;
         }
         else
         {
-            SwordExtended = false;
+            WeaponExtended = false;
         }
         
         if (keyboard.IsKeyDown(Keys.LeftShift))
         {
-            if (!SwordExtended) speed *= 1.5f;
+            if (!WeaponExtended) speed *= 1.5f;
         }
 
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
         {
             movementVector.Y -= speed;
-            FacingDirection = new Vector2(0, Sprite.Height * -0.25f);
-            _swordRotation = 270f;
+            FacingDirection = new Vector2(0, Sprite.Height * -0.5f);
 
-            SwordHitbox = new Rectangle(
-                (int)(Position.X + Sprite.Width * 0.5f - SwordSprite.Height * 0.5f),
-                (int)(Position.Y - SwordSprite.Width),
-                (int)SwordSprite.Height,
-                (int)SwordSprite.Width
-            );
+            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Up);
         }
 
         if (keyboard.IsKeyDown(Keys.S) || keyboard.IsKeyDown(Keys.Down))
         {
             movementVector.Y += speed;
             FacingDirection = new Vector2(0, Sprite.Height * 0.5f);
-            _swordRotation = 90f;
 
-            SwordHitbox = new Rectangle(
-                (int)(Position.X + Sprite.Width * 0.5f - SwordSprite.Height * 0.5f),
-                (int)(Position.Y + Sprite.Height),
-                (int)SwordSprite.Height,
-                (int)SwordSprite.Width
-            );
+            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Down);
         }
 
         if (keyboard.IsKeyDown(Keys.A) || keyboard.IsKeyDown(Keys.Left))
         {
             movementVector.X -= speed;
             FacingDirection = new Vector2(Sprite.Width * -0.5f, 0);
-            _swordRotation = 180f;
+
+            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Left);
 
             _facingLeft = true;
-
-            SwordHitbox = new Rectangle(
-                (int)(Position.X - SwordSprite.Width),
-                (int)(Position.Y + Sprite.Height * 0.5f - SwordSprite.Height * 0.5f),
-                (int)SwordSprite.Width,
-                (int)SwordSprite.Height
-            );
         }
 
         if (keyboard.IsKeyDown(Keys.D) || keyboard.IsKeyDown(Keys.Right))
         {
             movementVector.X += speed;
             FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
-            _swordRotation = 0f;
+
+            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
 
             _facingLeft = false;
-
-            SwordHitbox = new Rectangle(
-                (int)(Position.X + Sprite.Width),
-                (int)(Position.Y + Sprite.Height * 0.5f - SwordSprite.Height * 0.5f),
-                (int)SwordSprite.Width,
-                (int)SwordSprite.Height
-            );
         }
 
         // Ensuring that movement vector is always normalized
@@ -188,7 +156,7 @@ public class Player : Entity
 
         _position = new Vector2(Position.X + movementVector.X, Position.Y + movementVector.Y);
 
-        if (movementVector != Vector2.Zero) return true;
+        if (keyboard.CurrentState.GetPressedKeys().Length > 0) return true;
         else return false;
     }
 
@@ -200,7 +168,17 @@ public class Player : Entity
 
         Vector2 movementVector = Vector2.Zero;
 
-        if (gamepadOne.IsButtonDown(Buttons.A))
+        if (gamepadOne.IsButtonDown(Buttons.X))
+        {
+            speed *= 0.5f;
+            WeaponExtended = true;
+        }
+        else
+        {
+            WeaponExtended = false;
+        }
+
+        if (gamepadOne.IsButtonDown(Buttons.A) && !WeaponExtended)
         {
             speed *= 1.5f;
             gamepadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));
