@@ -95,6 +95,7 @@ public class GameplayScene : Scene
     private List<Enemy> _enemies;
     private List<Obstacle> _obstacles;
     private List<Vector2> _slimeSpawns;
+    private List<RoomTransition> _transitions;
 
     private FollowCamera _camera;
     private Matrix _translation;
@@ -105,6 +106,13 @@ public class GameplayScene : Scene
     private bool _pauseEnemiesForTesting = false;
 
     private TilemapAtlas _tilemapAtlas;
+
+    public GameplayScene(){}
+
+    public GameplayScene(Player player)
+    {
+        _player = player;
+    }
 
     public override void Initialize()
     {
@@ -139,12 +147,13 @@ public class GameplayScene : Scene
         Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
 
         // Initialize the player
-        _player = new Player(5, playerPosition, _playerSprite, _swordSprite, _playerDeathSprite);
+        _player ??= new Player(5, playerPosition, _playerSprite, _swordSprite, _playerDeathSprite);
 
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
         _enemies = new List<Enemy>();
         _obstacles = new List<Obstacle>();
+        _transitions = new List<RoomTransition>();
 
         _slimeSpawns = new List<Vector2>
         {
@@ -172,14 +181,24 @@ public class GameplayScene : Scene
             _enemies.Add(bat);
         }
 
-        int centerX = _tilemap.Columns / 2;
-        int centerY = _tilemap.Rows / 2;
-
         // Add a test obstacle
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow)));
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow)));
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow - 1)));
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow - 1)));
+
+        // Set level transition
+        _transitions.Add
+        (
+            new RoomTransition
+            (
+                GetSpecificTile(_tilemap.Columns - 1, 5) - new Vector2(10, 0),
+                (int)_tilemap.TileWidth,
+                (int)_tilemap.TileHeight*2,
+                new Room1(_player),
+                new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight)
+            )
+        );
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -267,6 +286,11 @@ public class GameplayScene : Scene
         CheckKeyboardInput();
         CheckGamepadInput();
         _player.Update(gameTime, _roomBounds);
+
+        foreach(RoomTransition transition in _transitions)
+        {
+            transition.CheckIfPlayerEnter(_player);
+        }
 
         _player.BlockMovement(_obstacles, _roomBounds);
 
@@ -372,7 +396,7 @@ public class GameplayScene : Scene
 
         if (keyboard.WasKeyJustPressed(Keys.N))
         {
-            Core.ChangeScene(new Room1());
+            Core.ChangeScene(new Room1(_player));
         }
 
         if (keyboard.WasKeyJustPressed(Keys.P))
@@ -552,6 +576,7 @@ public class GameplayScene : Scene
         {
             foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
             foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
+            foreach (RoomTransition transition in _transitions) Core.DrawRectangleOutline(transition.Bounds);
             if (_player.WeaponExtended) Core.DrawRectangleOutline(_player.Weapon.Hitbox);
             Core.DrawRectangleOutline(_player.Bounds);
             Core.DrawRectangleOutline(_roomBounds);

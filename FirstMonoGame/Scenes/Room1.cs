@@ -106,6 +106,13 @@ public class Room1 : Scene
 
     private TilemapAtlas _tilemapAtlas;
 
+    private List<RoomTransition> _transitions;
+
+    public Room1(Player player)
+    {
+        _player = player;
+    }
+
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -138,13 +145,11 @@ public class Room1 : Scene
         int centerColumn = _tilemap.Columns / 2;
         Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
 
-        // Initialize the player
-        _player = new Player(5, playerPosition, _playerSprite, _swordSprite, _playerDeathSprite);
-
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
         _enemies = new List<Enemy>();
         _obstacles = new List<Obstacle>();
+        _transitions = new List<RoomTransition>();
 
         _slimeSpawns = new List<Vector2>
         {
@@ -153,33 +158,20 @@ public class Room1 : Scene
             new Vector2(_roomBounds.Right - _slimeSprite.Width, _roomBounds.Top - _slimeSprite.Height),
         };
 
-        for (int i = 0; i < 3; i++)
-        {
-            // Initial slime position to a random position on the screen
-            Slime slime = new Slime(5, _slimeSpawns[i], new AnimatedSprite(_slimeSprite), _player);
-
-            _slimes.Add(slime);
-            _enemies.Add(slime);
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            // Initial bat position to a random position on the screen
-            Vector2 batPosition = GetRandomTile();
-            Bat bat = new Bat(5, batPosition, new AnimatedSprite(_batSprite));
-
-            _bats.Add(bat);
-            _enemies.Add(bat);
-        }
-
         int centerX = _tilemap.Columns / 2;
         int centerY = _tilemap.Rows / 2;
 
-        // Add a test obstacle
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow)));
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow)));
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow - 1)));
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow - 1)));
+        _transitions.Add
+        (
+            new RoomTransition
+            (
+                GetSpecificTile(0, 4) - new Vector2(_tilemap.TileWidth-10, 0),
+                (int)_tilemap.TileWidth,
+                (int)_tilemap.TileHeight * 2,
+                new GameplayScene(_player),
+                new Vector2(20 * _tilemap.TileWidth, 5 * _tilemap.TileHeight) - new Vector2(_player.Sprite.Width+10, 0)
+            )
+        );
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -267,6 +259,11 @@ public class Room1 : Scene
         CheckKeyboardInput();
         CheckGamepadInput();
         _player.Update(gameTime, _roomBounds);
+
+        foreach (RoomTransition transition in _transitions)
+        {
+            transition.CheckIfPlayerEnter(_player);
+        }
 
         _player.BlockMovement(_obstacles, _roomBounds);
 
@@ -547,6 +544,7 @@ public class Room1 : Scene
         {
             foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
             foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
+            foreach (RoomTransition transition in _transitions) Core.DrawRectangleOutline(transition.Bounds);
             if (_player.WeaponExtended) Core.DrawRectangleOutline(_player.Weapon.Hitbox);
             Core.DrawRectangleOutline(_player.Bounds);
             Core.DrawRectangleOutline(_roomBounds);

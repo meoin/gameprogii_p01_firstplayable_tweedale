@@ -219,4 +219,9 @@ public class Player : Entity
         movementVector *= speed;
         _position = new Vector2(Position.X + movementVector.X, Position.Y + movementVector.Y);
     }
+
+    public void SetPosition(Vector2 position)
+    {
+        _position = position;
+    }
 }
