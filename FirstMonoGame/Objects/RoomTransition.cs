@@ -28,7 +28,6 @@ public class RoomTransition
         if(player.Bounds.Intersects(Bounds))
         {
             Core.ChangeScene(DestinationScene);
-            player.SetPosition(DestinationPosition);
         }
     }
 

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj": {}
+    "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj": {
+    "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj",
+        "projectUniqueName": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj",
         "projectName": "FirstMonoGame",
-        "projectPath": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj",
-        "packagesPath": "C:\\Users\\Michael\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\obj\\",
+        "projectPath": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\FirstMonoGame.csproj",
+        "packagesPath": "C:\\Users\\hubu9\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\FirstMonoGame\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Michael\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hubu9\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -28,8 +28,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj": {
-                "projectPath": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj"
+              "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj": {
+                "projectPath": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj"
               }
             }
           }
@@ -79,21 +79,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj": {
+    "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj",
+        "projectUniqueName": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj",
         "projectName": "MonoGameLibrary",
-        "projectPath": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj",
-        "packagesPath": "C:\\Users\\Michael\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Michael\\Documents\\_NSCC\\GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\obj\\",
+        "projectPath": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\MonoGameLibrary.csproj",
+        "packagesPath": "C:\\Users\\hubu9\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hubu9\\Documents\\_NSCC\\_GameProgII\\GameProgII_P01_FirstPlayable_Tweedale\\MonoGameLibrary\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Michael\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hubu9\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -147,7 +147,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -104,14 +104,16 @@ public class GameplayScene : Scene
     private bool _showHitboxes = false;
 
     private bool _pauseEnemiesForTesting = false;
+    private Vector2 _playerPosition;
 
     private TilemapAtlas _tilemapAtlas;
 
     public GameplayScene(){}
 
-    public GameplayScene(Player player)
+    public GameplayScene(Player player, Vector2 playerPosition)
     {
         _player = player;
+        _playerPosition = playerPosition;
     }
 
     public override void Initialize()
@@ -144,10 +146,11 @@ public class GameplayScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
+        Vector2 gameStartPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
 
         // Initialize the player
-        _player ??= new Player(5, playerPosition, _playerSprite, _swordSprite, _playerDeathSprite);
+        _player ??= new Player(5, gameStartPosition, _playerSprite, _swordSprite, _playerDeathSprite);
+        if(_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
 
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
@@ -187,6 +190,8 @@ public class GameplayScene : Scene
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow - 1)));
         _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow - 1)));
 
+
+        Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight);
         // Set level transition
         _transitions.Add
         (
@@ -195,8 +200,8 @@ public class GameplayScene : Scene
                 GetSpecificTile(_tilemap.Columns - 1, 5) - new Vector2(10, 0),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight*2,
-                new Room1(_player),
-                new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight)
+                new Room1(_player, transitionDestination),
+                transitionDestination
             )
         );
 
@@ -392,11 +397,6 @@ public class GameplayScene : Scene
         {
             PauseGame();
             return;
-        }
-
-        if (keyboard.WasKeyJustPressed(Keys.N))
-        {
-            Core.ChangeScene(new Room1(_player));
         }
 
         if (keyboard.WasKeyJustPressed(Keys.P))

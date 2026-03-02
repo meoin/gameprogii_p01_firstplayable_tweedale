@@ -107,10 +107,12 @@ public class Room1 : Scene
     private TilemapAtlas _tilemapAtlas;
 
     private List<RoomTransition> _transitions;
+    private Vector2 _playerPosition;
 
-    public Room1(Player player)
+    public Room1(Player player, Vector2 playerPosition)
     {
         _player = player;
+        _playerPosition = playerPosition;
     }
 
     public override void Initialize()
@@ -140,10 +142,7 @@ public class Room1 : Scene
             (int)_tilemap.TileHeight * _tilemap.Rows
         );
 
-        // Initial slime position will be the center tile of the tile map.
-        int centerRow = _tilemap.Rows / 2;
-        int centerColumn = _tilemap.Columns / 2;
-        Vector2 playerPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
+        if (_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
 
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
@@ -161,6 +160,8 @@ public class Room1 : Scene
         int centerX = _tilemap.Columns / 2;
         int centerY = _tilemap.Rows / 2;
 
+        Vector2 transitionDestination = new Vector2(20 * _tilemap.TileWidth, 5 * _tilemap.TileHeight) - new Vector2(_player.Sprite.Width + 10, 0);
+
         _transitions.Add
         (
             new RoomTransition
@@ -168,8 +169,9 @@ public class Room1 : Scene
                 GetSpecificTile(0, 4) - new Vector2(_tilemap.TileWidth-10, 0),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
-                new GameplayScene(_player),
-                new Vector2(20 * _tilemap.TileWidth, 5 * _tilemap.TileHeight) - new Vector2(_player.Sprite.Width+10, 0)
+                new GameplayScene(_player, transitionDestination),
+                transitionDestination
+
             )
         );
 
