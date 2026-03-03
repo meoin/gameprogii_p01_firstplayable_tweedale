@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -12,6 +13,7 @@ public class Tilemap
 {
     private readonly Tileset _tileset;
     private readonly int[] _tiles;
+    private readonly List<Obstacle> _obstacles;
 
     /// <summary>
     /// Gets the total number of rows in this tilemap.
@@ -28,10 +30,24 @@ public class Tilemap
     /// </summary>
     public int Count { get; }
 
+    private Vector2 _scale;
+
     /// <summary>
     /// Gets or Sets the scale factor to draw each tile at.
     /// </summary>
-    public Vector2 Scale { get; set; }
+    public Vector2 Scale
+    {
+        get { return _scale; }
+        set
+        {
+            _scale = value;
+
+            foreach (Obstacle obstacle in _obstacles)
+            {
+                obstacle.SetScale(value);
+            }
+        }
+    }
 
     /// <summary>
     /// Gets the width, in pixels, each tile is drawn at.
@@ -51,6 +67,7 @@ public class Tilemap
     /// <param name="rows">The total number of rows in this tilemap.</param>
     public Tilemap(Tileset tileset, int columns, int rows)
     {
+        _obstacles = new List<Obstacle>();
         _tileset = tileset;
         Rows = rows;
         Columns = columns;
@@ -81,6 +98,22 @@ public class Tilemap
     {
         int index = row * Columns + column;
         SetTile(index, tilesetID);
+    }
+
+    /// <summary>
+    /// Adds a new obstacle with the sprite of the provided tileset ID.
+    /// </summary>
+    public void SetObstacle(int column, int row, int tilesetID)
+    {
+        _obstacles.Add(new Obstacle(new Sprite(_tileset.GetTile(tilesetID)), new Vector2(column * TileWidth, row * TileHeight)));
+    }
+
+    /// <summary>
+    /// Get the list of obstacles in the tilemap.
+    /// </summary>
+    public List<Obstacle> GetObstacles()
+    {
+        return _obstacles;
     }
 
     /// <summary>

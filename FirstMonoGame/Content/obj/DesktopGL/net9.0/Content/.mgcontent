@@ -12,9 +12,11 @@
     <File>C:/Users/hubu9/Documents/_NSCC/_GameProgII/GameProgII_P01_FirstPlayable_Tweedale/FirstMonoGame/Content/fonts/04B_30.spritefont</File>
     <File>C:/Users/hubu9/Documents/_NSCC/_GameProgII/GameProgII_P01_FirstPlayable_Tweedale/FirstMonoGame/Content/images/atlas.png</File>
     <File>C:/Users/hubu9/Documents/_NSCC/_GameProgII/GameProgII_P01_FirstPlayable_Tweedale/FirstMonoGame/Content/images/background-pattern.png</File>
+    <File>C:/Users/hubu9/Documents/_NSCC/_GameProgII/GameProgII_P01_FirstPlayable_Tweedale/FirstMonoGame/Content/images/dungeon_tiles.png</File>
     <File>C:/Users/hubu9/Documents/_NSCC/_GameProgII/GameProgII_P01_FirstPlayable_Tweedale/FirstMonoGame/Content/images/logo.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

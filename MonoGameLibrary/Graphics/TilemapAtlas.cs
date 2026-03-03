@@ -149,10 +149,13 @@ public class TilemapAtlas
                         //      06 07 07 08
                         // </Tiles>
                         XElement tilesElement = tilemap.Element("Tiles");
+                        XElement obstacles = tilemap.Element("Obstacles");
 
                         // Split the value of the tiles data into rows by splitting on
                         // the new line character
                         string[] rows = tilesElement.Value.Trim().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+                        string[] obstacleRows = null;
+                        if (obstacles != null) obstacleRows = obstacles.Value.Trim().Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
                         // Split the value of the first row to determine the total number of columns
                         int columnCount = rows[0].Split(" ", StringSplitOptions.RemoveEmptyEntries).Length;
@@ -165,15 +168,20 @@ public class TilemapAtlas
                         {
                             // Split the row into individual columns
                             string[] columns = rows[row].Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                            string[] obstacleColumns = null;
+                            if (obstacles != null) obstacleColumns = obstacleRows[row].Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
                             // Process each column of the current row
                             for (int column = 0; column < columnCount; column++)
                             {
                                 // Get the tileset index for this location
                                 int tilesetIndex = int.Parse(columns[column]);
+                                int obstacleIndex = 0;
+                                if (obstacles != null) obstacleIndex = int.Parse(obstacleColumns[column]);
 
                                 // Add that region to the tilemap at the row and column location
                                 map.SetTile(column, row, tilesetIndex);
+                                if (obstacleIndex != 0) map.SetObstacle(column, row, obstacleIndex);
                             }
                         }
 

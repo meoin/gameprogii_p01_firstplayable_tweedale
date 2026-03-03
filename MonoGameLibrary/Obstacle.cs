@@ -5,7 +5,7 @@ using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
 using Microsoft.Xna.Framework.Input;
 
-namespace FirstMonoGame.Objects;
+namespace MonoGameLibrary;
 
 public class Obstacle
 {
@@ -47,10 +47,8 @@ public class Obstacle
     {
         if (_isAnimated) AnimatedSprite.Draw(Core.SpriteBatch, Position);
         else Sprite.Draw(Core.SpriteBatch, Position);
-
-
     }
-    
+
     public Vector2 GetCenter()
     {
         return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
@@ -64,5 +62,13 @@ public class Obstacle
                 (int)Sprite.Width,
                 (int)Sprite.Height
             );
+    }
+
+    public void SetScale(Vector2 scale)
+    {
+        Sprite.Scale = scale;
+        _position = new Vector2(_position.X * scale.X, _position.Y * scale.Y);
+
+        SetRectangle();
     }
 }

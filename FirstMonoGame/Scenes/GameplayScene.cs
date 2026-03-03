@@ -155,7 +155,7 @@ public class GameplayScene : Scene
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
         _enemies = new List<Enemy>();
-        _obstacles = new List<Obstacle>();
+        _obstacles = _tilemap.GetObstacles();
         _transitions = new List<RoomTransition>();
 
         _slimeSpawns = new List<Vector2>
@@ -183,12 +183,6 @@ public class GameplayScene : Scene
             _bats.Add(bat);
             _enemies.Add(bat);
         }
-
-        // Add a test obstacle
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow)));
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow)));
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn, centerRow - 1)));
-        _obstacles.Add(new Obstacle(_obstacle, GetSpecificTile(centerColumn - 1, centerRow - 1)));
 
 
         Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight);
