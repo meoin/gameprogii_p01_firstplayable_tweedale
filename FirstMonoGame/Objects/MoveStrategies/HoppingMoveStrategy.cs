@@ -54,8 +54,6 @@ internal class HoppingMoveStrategy : IMoveStrategy
 
         _hopping = true;
 
-        Debug.WriteLine("Spider distance: " + Vector2.Distance(_player.Position, position));
-
         _hopOriginPoint = position;
 
         if (_aggroRange > Vector2.Distance(_player.Position, position))
@@ -69,8 +67,6 @@ internal class HoppingMoveStrategy : IMoveStrategy
             float randomYDistance = (float)(rand.NextDouble() * (_aggroRange * 2) - _aggroRange) * 0.8f;
             _target = new Vector2(position.X + randomXDistance, position.Y + randomYDistance);
         }
-
-        // Debug.WriteLine($"Slime position: {newPosition} | Movement vector: {velocity}");
 
         return newPosition;
     }

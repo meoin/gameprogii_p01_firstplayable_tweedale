@@ -21,10 +21,10 @@ using System.Diagnostics;
 
 namespace FirstMonoGame.Scenes;
 
-public class Room1 : GameplayScene
+public class Room2 : GameplayScene
 {
-    public Room1(string tilemapName) : base(tilemapName) {}
-    public Room1(string tilemapName, Player player, Vector2 playerPosition) : base(tilemapName, player, playerPosition) { }
+
+    public Room2(string tilemapName, Player player, Vector2 playerPosition) : base(tilemapName, player, playerPosition){}
 
     public override void Initialize()
     {
@@ -35,29 +35,22 @@ public class Room1 : GameplayScene
         _obstacles = _tilemap.GetObstacles();
         _transitions = new List<RoomTransition>();
 
-        _enemies.Add(new Slime(2, GetSpecificTile(8, 10), _slimeSprite, _player));
-        _enemies.Add(new Slime(2, GetSpecificTile(2, 7), _slimeSprite, _player));
-        _enemies.Add(new Slime(2, GetSpecificTile(6, 6), _slimeSprite, _player));
-        _enemies.Add(new Slime(2, GetSpecificTile(13, 10), _slimeSprite, _player));
-        _enemies.Add(new Slime(2, GetSpecificTile(16, 9), _slimeSprite, _player));
-
-        _enemies.Add(new Spider(4, GetSpecificTile(3, 2), _spiderSprite, _player));
-        _enemies.Add(new Spider(4, GetSpecificTile(11, 2), _spiderSprite, _player));
-
-        _enemies.Add(new Bat(3, GetSpecificTile(15, 4), _batSprite));
-        _enemies.Add(new Bat(3, GetSpecificTile(8, 7), _batSprite));
+        _enemies.Add(new Spider(4, GetSpecificTile(12, 2), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(8, 7), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(15, 4), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(1, 1), _spiderSprite, _player));
 
 
-        Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight);
+        Vector2 transitionDestination = new Vector2(20 * _tilemap.TileWidth, 5 * _tilemap.TileHeight) - new Vector2(_player.Sprite.Width + 10, 0);
         // Set level transition
         _transitions.Add
         (
             new RoomTransition
             (
-                GetSpecificTile(_tilemap.Columns - 1, 5) - new Vector2(10, 0),
+                GetSpecificTile(0, 4) - new Vector2(_tilemap.TileWidth - 10, 0),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
-                new Room2("room-2", _player, transitionDestination),
+                new Room1("room-1", _player, transitionDestination),
                 transitionDestination
             )
         );
@@ -71,6 +64,7 @@ public class Room1 : GameplayScene
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        
     }
 
     public override void Draw(GameTime gameTime)

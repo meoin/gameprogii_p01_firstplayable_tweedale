@@ -23,98 +23,76 @@ namespace FirstMonoGame.Scenes;
 
 public class GameplayScene : Scene
 {
-    // Defines the slime animated sprite.
-    private AnimatedSprite _slimeSprite;
 
-    // Defines the bat animated sprite.
-    private AnimatedSprite _batSprite;
+    #region Asset Definition
 
-    // Defines the spider animated sprite.
-    private AnimatedSprite _spiderSprite;
+    protected AnimatedSprite _slimeSprite;
+    protected AnimatedSprite _batSprite;
+    protected AnimatedSprite _spiderSprite;
+    protected AnimatedSprite _playerSprite;
+    protected AnimatedSprite _playerDeathSprite;
+    protected Sprite _swordSprite;
+    protected Sprite _obstacle;
+    protected Tilemap _tilemap;
+    protected SpriteFont _font;
+    protected Panel _pausePanel;
+    protected AnimatedButton _resumeButton;
+    protected SoundEffect _uiSoundEffect;
+    protected TextureAtlas _atlas;
+    protected TilemapAtlas _tilemapAtlas;
+    protected string _tilemapName;
+    protected SoundEffect _bounceSoundEffect;
+    protected SoundEffect _collectSoundEffect;
+   
+    #endregion
+    
+    #region Positional Value Definition
+    // Tracks the players score.
+    protected int _score;
 
-    // Defines the player animated sprite.
-    private AnimatedSprite _playerSprite;
+    // Defines the position to draw the score text at.
+    protected Vector2 _scoreTextPosition;
 
-    // Defines the player death animated sprite.
-    private AnimatedSprite _playerDeathSprite;
+    // Defines the position to draw the score text at.
+    protected Vector2 _healthTextPosition;
 
-    // Defines the bat animated sprite.
-    private Sprite _swordSprite;
+    // Defines the origin used when drawing the score text.
+    protected Vector2 _scoreTextOrigin;
 
-    // Defines a test obstacle sprite
-    private Sprite _obstacle;
-
-    // Speed multiplier when moving.
-    private const float MOVEMENT_SPEED = 5.0f;
-
-    // Defines the tilemap to draw.
-    private Tilemap _tilemap;
+    // Defines the origin used when drawing the score text.
+    protected Vector2 _healthTextOrigin;
 
     // Defines the bounds of the room that the slime and bat are contained within.
-    private Rectangle _roomBounds;
+    protected Rectangle _roomBounds;
 
-    // The sound effect to play when the bat bounces off the edge of the screen.
-    private SoundEffect _bounceSoundEffect;
+    protected Rectangle _roomSize;
 
-    // The sound effect to play when the slime eats a bat.
-    private SoundEffect _collectSoundEffect;
+    protected Vector2 _playerPosition;
 
-    // The SpriteFont Description used to draw text
-    private SpriteFont _font;
+    #endregion
 
-    // Tracks the players score.
-    private int _score;
+    #region Object Definition and Test Booleans
 
-    // Defines the position to draw the score text at.
-    private Vector2 _scoreTextPosition;
+    protected Player _player;
+    protected List<Enemy> _enemies;
+    protected List<Obstacle> _obstacles;
+    protected List<Vector2> _slimeSpawns;
+    protected List<RoomTransition> _transitions;
+    protected FollowCamera _camera;
+    protected Matrix _translation;
+    protected bool _showHitboxes = false;
+    protected bool _pauseEnemiesForTesting = false;
+    
+    #endregion
 
-    // Defines the position to draw the score text at.
-    private Vector2 _healthTextPosition;
-
-    // Defines the origin used when drawing the score text.
-    private Vector2 _scoreTextOrigin;
-
-    // Defines the origin used when drawing the score text.
-    private Vector2 _healthTextOrigin;
-
-    // A reference to the pause panel UI element so we can set its visibility
-    // when the game is paused.
-    private Panel _pausePanel;
-
-    // A reference to the resume button UI element so we can focus it
-    // when the game is paused.
-    private AnimatedButton _resumeButton;
-
-    // The UI sound effect to play when a UI event is triggered.
-    private SoundEffect _uiSoundEffect;
-
-    // Reference to the texture atlas that we can pass to UI elements when they
-    // are created.
-    private TextureAtlas _atlas;
-
-    private Player _player;
-    private List<Slime> _slimes;
-    private List<Bat> _bats;
-    private List<Enemy> _enemies;
-    private List<Obstacle> _obstacles;
-    private List<Vector2> _slimeSpawns;
-    private List<RoomTransition> _transitions;
-
-    private FollowCamera _camera;
-    private Matrix _translation;
-    private Rectangle _roomSize;
-
-    private bool _showHitboxes = false;
-
-    private bool _pauseEnemiesForTesting = false;
-    private Vector2 _playerPosition;
-
-    private TilemapAtlas _tilemapAtlas;
-
-    public GameplayScene(){}
-
-    public GameplayScene(Player player, Vector2 playerPosition)
+    public GameplayScene(string tilemapName)
     {
+        _tilemapName = tilemapName;
+    }
+
+    public GameplayScene(string tilemapName, Player player, Vector2 playerPosition)
+    {
+        _tilemapName = tilemapName;
         _player = player;
         _playerPosition = playerPosition;
     }
@@ -149,61 +127,15 @@ public class GameplayScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        Vector2 gameStartPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
+        Vector2 gameStartPosition = GetSpecificTile(1, 10);
 
         // Initialize the player
         _player ??= new Player(5, gameStartPosition, _playerSprite, _swordSprite, _playerDeathSprite);
         if(_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
 
-        _slimes = new List<Slime>();
-        _bats = new List<Bat>();
         _enemies = new List<Enemy>();
-        _obstacles = _tilemap.GetObstacles();
+        _obstacles = new List<Obstacle>();
         _transitions = new List<RoomTransition>();
-
-        _slimeSpawns = new List<Vector2>
-        {
-            new Vector2(_roomBounds.Left + _slimeSprite.Width, _roomBounds.Top - _slimeSprite.Height),
-            new Vector2(_roomBounds.Width/2, _roomBounds.Top - _slimeSprite.Height),
-            new Vector2(_roomBounds.Right - _slimeSprite.Width, _roomBounds.Top - _slimeSprite.Height),
-        };
-
-        for (int i = 0; i < 3; i++)
-        {
-            // Initial slime position to a random position on the screen
-            Slime slime = new Slime(2, _slimeSpawns[i], new AnimatedSprite(_slimeSprite), _player);
-
-            _slimes.Add(slime);
-            _enemies.Add(slime);
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            // Initial bat position to a random position on the screen
-            Vector2 batPosition = GetRandomTile();
-            Bat bat = new Bat(3, batPosition, new AnimatedSprite(_batSprite));
-
-            _bats.Add(bat);
-            _enemies.Add(bat);
-        }
-
-        Spider spider = new Spider(4, GetSpecificTile(12, 2), _spiderSprite, _player);
-        _enemies.Add(spider);
-
-
-        Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight);
-        // Set level transition
-        _transitions.Add
-        (
-            new RoomTransition
-            (
-                GetSpecificTile(_tilemap.Columns - 1, 5) - new Vector2(10, 0),
-                (int)_tilemap.TileWidth,
-                (int)_tilemap.TileHeight*2,
-                new Room1(_player, transitionDestination),
-                transitionDestination
-            )
-        );
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -247,7 +179,7 @@ public class GameplayScene : Scene
         _tilemapAtlas.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the tilemap from the XML configuration file.
-        _tilemap = _tilemapAtlas.GetTilemap("room-1");
+        _tilemap = _tilemapAtlas.GetTilemap(_tilemapName);
 
         // Create the obstacle sprite from the atlas
         _obstacle = _atlas.CreateSprite("test-obstacle", 4.0f);
@@ -284,9 +216,9 @@ public class GameplayScene : Scene
             }
         }
 
-        foreach (Slime slime in _slimes)
+        foreach (Enemy enemy in _enemies)
         {
-            slime.ObstacleInteraction(_obstacles, _roomBounds);
+            enemy.ObstacleInteraction(_obstacles, _roomBounds);
         }
 
         // Check for keyboard input and handle it.
@@ -354,7 +286,7 @@ public class GameplayScene : Scene
         if (_player.Dead) Core.ChangeScene(new TitleScene());
     }
 
-    private Vector2 GetRandomTile()
+    protected Vector2 GetRandomTile()
     {
         Vector2 targetPosition = new Vector2(0, 0);
 
@@ -372,7 +304,7 @@ public class GameplayScene : Scene
         return targetPosition;
     }
 
-    private Vector2 GetSpecificTile(int x, int y)
+    protected Vector2 GetSpecificTile(int x, int y)
     {
         // Choose a random row and column based on the total number of each
         int column = Math.Clamp(x, 1, _tilemap.Columns - 1);
@@ -381,7 +313,7 @@ public class GameplayScene : Scene
         return new Vector2(column * _tilemap.TileWidth, row * _tilemap.TileHeight);
     }
 
-    private void PauseGame()
+    protected void PauseGame()
     {
         // Make the pause panel UI element visible.
         _pausePanel.IsVisible = true;
@@ -390,7 +322,7 @@ public class GameplayScene : Scene
         _resumeButton.IsFocused = true;
     }
 
-    private void CheckKeyboardInput()
+    protected void CheckKeyboardInput()
     {
         KeyboardInfo keyboard = Core.Input.Keyboard;
 
@@ -446,7 +378,7 @@ public class GameplayScene : Scene
         }
     }
 
-    private void CheckGamepadInput()
+    protected void CheckGamepadInput()
     {
         GamePadInfo gamepadOne = Core.Input.GamePads[(int)PlayerIndex.One];
 
@@ -460,14 +392,14 @@ public class GameplayScene : Scene
         }
     }
 
-    private void InitializeUI()
+    protected void InitializeUI()
     {
         GumService.Default.Root.Children.Clear();
 
         CreatePausePanel();
     }
 
-    private void CreatePausePanel()
+    protected void CreatePausePanel()
     {
         _pausePanel = new Panel();
         _pausePanel.Anchor(Anchor.Center);
@@ -517,7 +449,7 @@ public class GameplayScene : Scene
         _pausePanel.AddChild(quitButton);
     }
 
-    private void HandleResumeButtonClicked(object sender, EventArgs e)
+    protected void HandleResumeButtonClicked(object sender, EventArgs e)
     {
         // A UI interaction occurred, play the sound effect
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
@@ -527,7 +459,7 @@ public class GameplayScene : Scene
         _resumeButton.IsFocused = false;
     }
 
-    private void HandleQuitButtonClicked(object sender, EventArgs e)
+    protected void HandleQuitButtonClicked(object sender, EventArgs e)
     {
         // A UI interaction occurred, play the sound effect
         Core.Audio.PlaySoundEffect(_uiSoundEffect);
@@ -536,7 +468,7 @@ public class GameplayScene : Scene
         Core.ChangeScene(new TitleScene());
     }
 
-    private void CalculateTranslation(FollowCamera camera)
+    protected void CalculateTranslation(FollowCamera camera)
     {
         var dx = (Core.Bounds.Width / 2) - camera.Position.X;
         var dy = (Core.Bounds.Height / 2) - camera.Position.Y;
@@ -572,12 +504,12 @@ public class GameplayScene : Scene
 
         if (_showHitboxes)
         {
-            foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds);
+            foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds, Color.LimeGreen);
             foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
-            foreach (RoomTransition transition in _transitions) Core.DrawRectangleOutline(transition.Bounds);
-            if (_player.WeaponExtended) Core.DrawRectangleOutline(_player.Weapon.Hitbox);
-            Core.DrawRectangleOutline(_player.Bounds);
-            Core.DrawRectangleOutline(_roomBounds);
+            foreach (RoomTransition transition in _transitions) Core.DrawRectangleOutline(transition.Bounds, Color.Cyan);
+            if (_player.WeaponExtended) Core.DrawRectangleOutline(_player.Weapon.Hitbox, Color.Red);
+            Core.DrawRectangleOutline(_player.Bounds, Color.Cyan);
+            Core.DrawRectangleOutline(_roomBounds, Color.LimeGreen);
         }
 
         // Restart the spritebatch for UI elements to not use the translation matrix

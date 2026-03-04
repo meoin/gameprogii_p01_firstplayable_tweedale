@@ -54,7 +54,7 @@ public class Entity
         Health = new Health(maxHealth);
         Shield = new Health(maxShield, startingShield);
         _position = position;
-        Sprite = sprite;
+        Sprite = new AnimatedSprite(sprite);
     }
 
     public Entity(int maxHealth, Vector2 position, AnimatedSprite sprite)
@@ -190,7 +190,7 @@ public class Entity
         return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
     }
 
-    public void ObstacleInteraction(List<Obstacle> obstacles, Rectangle roomBounds)
+    public virtual void ObstacleInteraction(List<Obstacle> obstacles, Rectangle roomBounds)
     {
         _speedMultiplier = 1f;
         bool startDamagingFloorTimer = false;

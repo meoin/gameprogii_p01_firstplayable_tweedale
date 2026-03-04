@@ -6,6 +6,7 @@ using MonoGameLibrary.Input;
 using Microsoft.Xna.Framework.Input;
 using FirstMonoGame.Objects.MoveStrategies;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace FirstMonoGame.Objects.Enemies;
 
@@ -25,5 +26,10 @@ public class Bat : Enemy
         _position = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
 
         base.Update(gameTime, roomBounds);
+    }
+
+    public override void ObstacleInteraction(List<Obstacle> obstacles, Rectangle roomBounds)
+    {
+        return;
     }
 }

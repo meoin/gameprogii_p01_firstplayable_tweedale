@@ -278,8 +278,13 @@ public class Core : Game
 
     public static void DrawRectangleOutline(Rectangle rect)
     {
+        DrawRectangleOutline(rect, Color.Red);
+    }
+
+    public static void DrawRectangleOutline(Rectangle rect, Color color)
+    {
         int borderWidth = 3; // Desired thickness of the outline
-        Color outlineColor = Color.Red; // Desired color of the outline
+        Color outlineColor = color; // Desired color of the outline
         Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
@@ -306,6 +311,11 @@ public class Core : Game
 
     public static void DrawRectangleOutline(Circle circle)
     {
+        DrawRectangleOutline(circle, Color.Red);
+    }
+
+    public static void DrawRectangleOutline(Circle circle, Color color)
+    {
         Rectangle fakeRectangle = new Rectangle
         (
             (int)(circle.X - circle.Radius),
@@ -314,6 +324,6 @@ public class Core : Game
             circle.Radius * 2
         );
 
-        DrawRectangleOutline(fakeRectangle);
+        DrawRectangleOutline(fakeRectangle, color);
     }
 }
