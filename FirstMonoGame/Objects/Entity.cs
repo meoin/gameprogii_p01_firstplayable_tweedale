@@ -22,8 +22,10 @@ public class Entity
     public string Name { get; private set; }
     public Health Health { get; private set; }
     public Health Shield { get; private set; }
+    public bool IsDead { get; protected set; } = false;
     public Vector2 PreviousPosition { get; protected set; }
     protected Vector2 _position;
+    protected bool _animateSprite = true;
     public Vector2 Position
     {
         get => _position;
@@ -88,7 +90,7 @@ public class Entity
 
         RemainWithinRoomBounds(roomBounds);
 
-        Sprite.Update(gameTime);
+        if (_animateSprite) Sprite.Update(gameTime);
     }
 
     public virtual void Draw()
@@ -132,6 +134,24 @@ public class Entity
         }
 
         
+    }
+
+    public virtual void TakeDamage(int damage, Vector2 source)
+    {
+        if (InvincibleAfterBeingHurt) return;
+
+        // FIX THIS LATER!!!
+        // Will probably need to set a target position to push them back and if they're in a knockback state, lerp to that position quickly
+        // Right now it just teleports them which can teleport into walls which is VERY UGLY AND BAD!!!!
+
+        // vvvvvvvvvvvvvvvvvvv
+
+        // Vector2 knockbackVector = new Vector2(_position.X - source.X, _position.Y - source.Y);
+        // _position = new Vector2(_position.X + knockbackVector.X, _position.Y + knockbackVector.Y);
+
+        // ^^^^^^^^^^^^^^^^^^^
+        
+        TakeDamage(damage);
     }
 
     public virtual void TakeDamage(int damage)

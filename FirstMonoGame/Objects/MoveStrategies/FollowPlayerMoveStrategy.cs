@@ -34,4 +34,9 @@ internal class FollowPlayerMoveStrategy : IMoveStrategy
 
         return newPosition;
     }
+
+    public bool Moving()
+    {
+        return true;
+    }
 }

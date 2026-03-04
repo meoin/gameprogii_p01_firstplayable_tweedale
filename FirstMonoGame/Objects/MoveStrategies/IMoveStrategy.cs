@@ -4,7 +4,9 @@ using MonoGameLibrary.Graphics;
 
 namespace FirstMonoGame.Objects.MoveStrategies;
 
-internal interface IMoveStrategy
+public interface IMoveStrategy
 {
     Vector2 Move(Vector2 position, float speed, Rectangle roomBounds, GameTime gameTime);
+
+    bool Moving();
 }

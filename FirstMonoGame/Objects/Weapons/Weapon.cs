@@ -19,13 +19,15 @@ public class Weapon
     public Rectangle Hitbox { get; private set; }
     public Vector2 Position {get; private set; }
     private float _rotation;
+    public int Damage;
 
-    public Weapon(Sprite sprite, Vector2 source)
+    public Weapon(Sprite sprite, Vector2 source, int damage)
     {
         Sprite = sprite;
         Position = source;
         SetDirection(source, Direction.Right);
         _rotation = 0f;
+        Damage = damage;
     }
 
     public void SetDirection(Vector2 source, Direction direction)

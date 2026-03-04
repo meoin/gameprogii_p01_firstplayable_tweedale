@@ -23,7 +23,7 @@ public class Player : Entity
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite)
      : base( name, maxHealth, maxShield, startingShield, position, sprite)
     {
-        Weapon = new Weapon(swordSprite, Position);
+        Weapon = new Weapon(swordSprite, Position, 1);
         _deathSprite = deathSprite;
         FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
 
@@ -32,7 +32,7 @@ public class Player : Entity
 
     public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
     {
-        Weapon = new Weapon(swordSprite, Position);
+        Weapon = new Weapon(swordSprite, Position, 1);
         _deathSprite = deathSprite;
         FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
 

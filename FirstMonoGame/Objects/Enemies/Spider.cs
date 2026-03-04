@@ -8,20 +8,22 @@ using FirstMonoGame.Objects.MoveStrategies;
 
 namespace FirstMonoGame.Objects.Enemies;
 
-public class Slime : Enemy
+public class Spider : Enemy
 {
     private const float MOVEMENT_SPEED = 100.0f;
 
-    public Slime(int maxHealth, Vector2 position, AnimatedSprite sprite, Player player) : base("Slime", maxHealth, 0, 0, position, sprite)
+    public Spider(int maxHealth, Vector2 position, AnimatedSprite sprite, Player player) : base("Slime", maxHealth, 0, 0, position, sprite)
     {
-        _moveStrategy = new FollowPlayerMoveStrategy(player, this);
+        _moveStrategy = new HoppingMoveStrategy(player, this, 1.5f, 300f, 2f);
     }
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)
     {
         PreviousPosition = Position;
 
-        _position = _moveStrategy.Move(_position, MOVEMENT_SPEED * _speedMultiplier, roomBounds, gameTime);
+        _position = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
+
+        _animateSprite = _moveStrategy.Moving();
 
         base.Update(gameTime, roomBounds);
     }

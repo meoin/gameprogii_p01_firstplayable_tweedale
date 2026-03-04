@@ -12,7 +12,6 @@ namespace FirstMonoGame.Objects.Enemies;
 public class Bat : Enemy
 {
     private const float MOVEMENT_SPEED = 300.0f;
-    private IMoveStrategy _moveStrategy;
 
     public Bat(int maxHealth, Vector2 position, AnimatedSprite sprite) : base("Bat", maxHealth, 0, 0, position, sprite)
     {

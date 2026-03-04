@@ -21,13 +21,16 @@ using System.Diagnostics;
 
 namespace FirstMonoGame.Scenes;
 
-public class Room1 : Scene
+public class Room1 : GameplayScene
 {
     // Defines the slime animated sprite.
     private AnimatedSprite _slimeSprite;
 
     // Defines the bat animated sprite.
     private AnimatedSprite _batSprite;
+
+    // Defines the spider animated sprite.
+    private AnimatedSprite _spiderSprite;
 
     // Defines the player animated sprite.
     private AnimatedSprite _playerSprite;
@@ -95,6 +98,7 @@ public class Room1 : Scene
     private List<Enemy> _enemies;
     private List<Obstacle> _obstacles;
     private List<Vector2> _slimeSpawns;
+    private List<RoomTransition> _transitions;
 
     private FollowCamera _camera;
     private Matrix _translation;
@@ -103,17 +107,13 @@ public class Room1 : Scene
     private bool _showHitboxes = false;
 
     private bool _pauseEnemiesForTesting = false;
+    private Vector2 _playerPosition;
 
     private TilemapAtlas _tilemapAtlas;
 
-    private List<RoomTransition> _transitions;
-    private Vector2 _playerPosition;
+    public Room1() { }
 
-    public Room1(Player player, Vector2 playerPosition)
-    {
-        _player = player;
-        _playerPosition = playerPosition;
-    }
+    public Room1(Player player, Vector2 playerPosition) : base(player, playerPosition){}
 
     public override void Initialize()
     {
@@ -142,12 +142,19 @@ public class Room1 : Scene
             (int)_tilemap.TileHeight * _tilemap.Rows
         );
 
+        // Initial slime position will be the center tile of the tile map.
+        int centerRow = _tilemap.Rows / 2;
+        int centerColumn = _tilemap.Columns / 2;
+        Vector2 gameStartPosition = new Vector2((centerColumn - 2) * _tilemap.TileWidth, (centerRow + 2) * _tilemap.TileHeight);
+
+        // Initialize the player
+        _player ??= new Player(5, gameStartPosition, _playerSprite, _swordSprite, _playerDeathSprite);
         if (_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
 
         _slimes = new List<Slime>();
         _bats = new List<Bat>();
         _enemies = new List<Enemy>();
-        _obstacles = new List<Obstacle>();
+        _obstacles = _tilemap.GetObstacles();
         _transitions = new List<RoomTransition>();
 
         _slimeSpawns = new List<Vector2>
@@ -157,21 +164,40 @@ public class Room1 : Scene
             new Vector2(_roomBounds.Right - _slimeSprite.Width, _roomBounds.Top - _slimeSprite.Height),
         };
 
-        int centerX = _tilemap.Columns / 2;
-        int centerY = _tilemap.Rows / 2;
+        for (int i = 0; i < 3; i++)
+        {
+            // Initial slime position to a random position on the screen
+            Slime slime = new Slime(2, _slimeSpawns[i], new AnimatedSprite(_slimeSprite), _player);
 
-        Vector2 transitionDestination = new Vector2(20 * _tilemap.TileWidth, 5 * _tilemap.TileHeight) - new Vector2(_player.Sprite.Width + 10, 0);
+            _slimes.Add(slime);
+            _enemies.Add(slime);
+        }
 
+        for (int i = 0; i < 2; i++)
+        {
+            // Initial bat position to a random position on the screen
+            Vector2 batPosition = GetRandomTile();
+            Bat bat = new Bat(3, batPosition, new AnimatedSprite(_batSprite));
+
+            _bats.Add(bat);
+            _enemies.Add(bat);
+        }
+
+        Spider spider = new Spider(4, GetSpecificTile(12, 2), _spiderSprite, _player);
+        _enemies.Add(spider);
+
+
+        Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight);
+        // Set level transition
         _transitions.Add
         (
             new RoomTransition
             (
-                GetSpecificTile(0, 4) - new Vector2(_tilemap.TileWidth-10, 0),
+                GetSpecificTile(_tilemap.Columns - 1, 5) - new Vector2(10, 0),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
-                new GameplayScene(_player, transitionDestination),
+                new Room1(_player, transitionDestination),
                 transitionDestination
-
             )
         );
 
@@ -211,11 +237,13 @@ public class Room1 : Scene
         // Create the bat animated sprite from the atlas.
         _batSprite = _atlas.CreateAnimatedSprite("bat-animation", 4.0f);
 
+        _spiderSprite = _atlas.CreateAnimatedSprite("spider-animation", 4.0f);
+
         _tilemapAtlas = TilemapAtlas.FromFile(Content, "images/tilemap-definition.xml");
         _tilemapAtlas.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the tilemap from the XML configuration file.
-        _tilemap = _tilemapAtlas.GetTilemap("room-2");
+        _tilemap = _tilemapAtlas.GetTilemap("room-1");
 
         // Create the obstacle sprite from the atlas
         _obstacle = _atlas.CreateSprite("test-obstacle", 4.0f);
@@ -294,15 +322,15 @@ public class Room1 : Scene
                 // If the enemy is touching the swords hitbox, set them to a new position and gain score
                 if (enemy.Bounds.Intersects(_player.Weapon.Hitbox))
                 {
-                    // Change the bat position by setting the x and y values equal to
-                    // the column and row multiplied by the width and height.
-                    enemy.ResetPosition(GetRandomTile());
+                    enemy.TakeDamage(_player.Weapon.Damage, _player.Weapon.Position);
 
-                    // Play the collect sound effect.
-                    Core.Audio.PlaySoundEffect(_collectSoundEffect);
-
-                    // Increase the player's score.
-                    _score += 100;
+                    // Sound effects
+                    if (enemy.IsDead)
+                    {
+                        Core.Audio.PlaySoundEffect(_bounceSoundEffect);
+                        continue;
+                    }
+                    else Core.Audio.PlaySoundEffect(_collectSoundEffect);
                 }
             }
 
@@ -313,6 +341,8 @@ public class Room1 : Scene
                 _player.TakeDamage(1);
             }
         }
+
+        _enemies.RemoveAll(enemy => enemy.IsDead);
 
         _camera.Follow(_player.Position, _roomSize);
         CalculateTranslation(_camera);
@@ -415,8 +445,6 @@ public class Room1 : Scene
     private void CheckGamepadInput()
     {
         GamePadInfo gamepadOne = Core.Input.GamePads[(int)PlayerIndex.One];
-
-        float speed = MOVEMENT_SPEED;
 
         Vector2 movementVector = Vector2.Zero;
 
@@ -529,18 +557,14 @@ public class Room1 : Scene
             obstacle.Draw();
         }
 
-        foreach (Slime enemy in _slimes)
-        {
-            enemy.Draw();
-        }
-
         // Draw the player sprite.
         _player.Draw();
 
-        foreach (Bat enemy in _bats)
+        foreach (Enemy enemy in _enemies)
         {
             enemy.Draw();
         }
+
 
         if (_showHitboxes)
         {

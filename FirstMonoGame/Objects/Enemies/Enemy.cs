@@ -11,7 +11,7 @@ namespace FirstMonoGame.Objects.Enemies;
 public class Enemy : Entity
 {
     private const float MOVEMENT_SPEED = 300.0f;
-    private IMoveStrategy _moveStrategy;
+    protected IMoveStrategy _moveStrategy;
 
     public Enemy(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite) : base(name, maxHealth, maxShield, startingShield, position, sprite)
     {
@@ -31,5 +31,17 @@ public class Enemy : Entity
     public void ResetPosition(Vector2 newPosition)
     {
         _position = newPosition;
+    }
+
+    public override void TakeDamage(int damage, Vector2 source)
+    {
+        base.TakeDamage(damage, source);
+
+        if (Health.CurrentHealth <= 0) Die();
+    }
+
+    private void Die()
+    {
+        IsDead = true;
     }
 }

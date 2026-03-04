@@ -88,4 +88,9 @@ internal class BouncingMoveStrategy : IMoveStrategy
         // Multiply the direction vector by the movement speed.
         _velocity = direction * speed;
     }
+
+    public bool Moving()
+    {
+        return true;
+    }
 }
