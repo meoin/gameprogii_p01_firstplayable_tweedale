@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using MonoGameLibrary.Obstacles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -105,7 +106,15 @@ public class Tilemap
     /// </summary>
     public void SetObstacle(int column, int row, int tilesetID)
     {
-        _obstacles.Add(new Obstacle(new Sprite(_tileset.GetTile(tilesetID)), new Vector2(column * TileWidth, row * TileHeight)));
+        Sprite sprite = new Sprite(_tileset.GetTile(tilesetID));
+        Vector2 position = new Vector2(column * TileWidth, row * TileHeight);
+        Obstacle obstacle;
+
+        if (tilesetID == 24) obstacle = new DamagingFloor(sprite, position, 1.0f);
+        else if (tilesetID == 25) obstacle = new SpeedModifier(sprite, position, 0.5f);
+        else obstacle = new Wall(sprite, position);
+
+        _obstacles.Add(obstacle);
     }
 
     /// <summary>

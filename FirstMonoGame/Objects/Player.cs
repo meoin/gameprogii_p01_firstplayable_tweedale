@@ -91,7 +91,7 @@ public class Player : Entity
     {
         KeyboardInfo keyboard = Core.Input.Keyboard;
 
-        float speed = MOVEMENT_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        float speed = MOVEMENT_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds * _speedMultiplier;
         Vector2 movementVector = Vector2.Zero;
 
         if (keyboard.IsKeyDown(Keys.Space))

@@ -278,7 +278,7 @@ public class GameplayScene : Scene
 
         foreach (Slime slime in _slimes)
         {
-            slime.BlockMovement(_obstacles, _roomBounds);
+            slime.ObstacleInteraction(_obstacles, _roomBounds);
         }
 
         // Check for keyboard input and handle it.
@@ -291,7 +291,7 @@ public class GameplayScene : Scene
             transition.CheckIfPlayerEnter(_player);
         }
 
-        _player.BlockMovement(_obstacles, _roomBounds);
+        _player.ObstacleInteraction(_obstacles, _roomBounds);
 
         // Loop through each enemy
         foreach (Enemy enemy in _enemies)

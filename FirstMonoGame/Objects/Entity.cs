@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
+using MonoGameLibrary.Obstacles;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
@@ -14,7 +15,10 @@ public class Entity
     private const float HURT_INVINCIBILITY_SECONDS = 2.5f;
     public bool InvincibleAfterBeingHurt = false;
     private float _hurtInvincibilityTimer = 0f;
-
+    protected float _speedMultiplier = 1f;
+    private float _floorDamageTimerMax = 5f;
+    private float _floorDamageTimer = 0f;
+    private bool _inDamagingFloor = false;
     public string Name { get; private set; }
     public Health Health { get; private set; }
     public Health Shield { get; private set; }
@@ -72,6 +76,15 @@ public class Entity
                 _hurtInvincibilityTimer = 0;
             }
         }
+        else if (_inDamagingFloor)
+        {
+            _floorDamageTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_floorDamageTimer <= 0)
+            {
+                TakeDamage(1);
+                _inDamagingFloor = false;
+            }
+        }
 
         RemainWithinRoomBounds(roomBounds);
 
@@ -86,6 +99,12 @@ public class Entity
             if (hurtFlashWave > 0) Sprite.Draw(Core.SpriteBatch, Position, Color.Red);
             else Sprite.Draw(Core.SpriteBatch, Position);
         } 
+        else if (_inDamagingFloor)
+        {
+            int redness = (int)(255 * (_floorDamageTimer / _floorDamageTimerMax));
+            Color drawColor = new Color(255, redness, redness);
+            Sprite.Draw(Core.SpriteBatch, Position, drawColor);
+        }
         else Sprite.Draw(Core.SpriteBatch, Position);
     }
 
@@ -151,43 +170,75 @@ public class Entity
         return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
     }
 
-    public void BlockMovement(List<Obstacle> obstacles, Rectangle roomBounds)
+    public void ObstacleInteraction(List<Obstacle> obstacles, Rectangle roomBounds)
     {
+        _speedMultiplier = 1f;
+        bool startDamagingFloorTimer = false;
+        bool inDamagingFloor = false;
+        float newFloorDamageTime = 0f;
+
         // Check each obstacle
         foreach (Obstacle obstacle in obstacles)
         {
             // If entity is colliding with the obstacle, revert them to their previous position
-            if (Bounds.Intersects(obstacle.Bounds))
+            if (!Bounds.Intersects(obstacle.Bounds)) continue;
+
+            if (obstacle is Wall)
             {
-                _position = PreviousPosition;
+                BlockMovement(obstacle, roomBounds);
+            }
+            else if (obstacle is SpeedModifier speedModifier)
+            {
+                _speedMultiplier = speedModifier.SpeedChange;
+            }
+            else if (obstacle is DamagingFloor damagingFloor)
+            {
+                inDamagingFloor = true;
 
-                // Try moving the entity in the X axis that they were trying to move without the Y axis
-                _position += new Vector2(_lastMovementVector.X, 0);
-
-                if (!Bounds.Intersects(obstacle.Bounds))
+                if (!_inDamagingFloor && !InvincibleAfterBeingHurt)
                 {
-                    // Ensure entity is still remaining within the bounds of the room
-                    RemainWithinRoomBounds(roomBounds);
-                    return;
-                }
-                else
-                {
-                    // If moving horizontally still collides then
-                    // Revert back to previous position and then try moving the entity in the Y axis that they were trying to move without the X axis
-                    _position = PreviousPosition;
-                    _position += new Vector2(0, _lastMovementVector.Y);
-
-                    if (!Bounds.Intersects(obstacle.Bounds))
-                    {
-                        RemainWithinRoomBounds(roomBounds);
-                        return;
-                    }
-                    // If both directions lead to a collision then just keep them at their original position
-                    else _position = PreviousPosition;
-                }
+                    startDamagingFloorTimer = true;
+                    newFloorDamageTime = damagingFloor.DamageTimer;
+                } 
             }
         }
 
-        
+        if (!inDamagingFloor) _inDamagingFloor = false;
+
+        if (!startDamagingFloorTimer) return;
+
+        _inDamagingFloor = true;
+        _floorDamageTimer = newFloorDamageTime;
+        _floorDamageTimerMax = newFloorDamageTime;
+    }
+
+    private void BlockMovement(Obstacle obstacle, Rectangle roomBounds)
+    {
+        _position = PreviousPosition;
+
+        // Try moving the entity in the X axis that they were trying to move without the Y axis
+        _position += new Vector2(_lastMovementVector.X, 0);
+
+        if (!Bounds.Intersects(obstacle.Bounds))
+        {
+            // Ensure entity is still remaining within the bounds of the room
+            RemainWithinRoomBounds(roomBounds);
+            return;
+        }
+        else
+        {
+            // If moving horizontally still collides then
+            // Revert back to previous position and then try moving the entity in the Y axis that they were trying to move without the X axis
+            _position = PreviousPosition;
+            _position += new Vector2(0, _lastMovementVector.Y);
+
+            if (!Bounds.Intersects(obstacle.Bounds))
+            {
+                RemainWithinRoomBounds(roomBounds);
+                return;
+            }
+            // If both directions lead to a collision then just keep them at their original position
+            else _position = PreviousPosition;
+        }
     }
 }
