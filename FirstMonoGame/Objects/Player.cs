@@ -19,6 +19,7 @@ public class Player : Entity
     private bool _dying = false;
     public bool Dead { get; private set; } = false;
     public Weapon Weapon;
+    public int Gold;
 
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite)
      : base( name, maxHealth, maxShield, startingShield, position, sprite)

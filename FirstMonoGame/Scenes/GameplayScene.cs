@@ -16,6 +16,7 @@ using MonoGameLibrary.Input;
 using MonoGameLibrary.Scenes;
 using FirstMonoGame.Objects;
 using FirstMonoGame.Objects.Enemies;
+using FirstMonoGame.Objects.Pickups;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -43,12 +44,12 @@ public class GameplayScene : Scene
     protected string _tilemapName;
     protected SoundEffect _bounceSoundEffect;
     protected SoundEffect _collectSoundEffect;
+    protected Sprite _goldSprite;
+    protected Sprite _heartSprite;
    
     #endregion
     
     #region Positional Value Definition
-    // Tracks the players score.
-    protected int _score;
 
     // Defines the position to draw the score text at.
     protected Vector2 _scoreTextPosition;
@@ -72,12 +73,12 @@ public class GameplayScene : Scene
     #endregion
 
     #region Object Definition and Test Booleans
-
     protected Player _player;
     protected List<Enemy> _enemies;
     protected List<Obstacle> _obstacles;
     protected List<Vector2> _slimeSpawns;
     protected List<RoomTransition> _transitions;
+    protected List<Pickup> _pickups;
     protected FollowCamera _camera;
     protected Matrix _translation;
     protected bool _showHitboxes = false;
@@ -136,6 +137,7 @@ public class GameplayScene : Scene
         _enemies = new List<Enemy>();
         _obstacles = new List<Obstacle>();
         _transitions = new List<RoomTransition>();
+        _pickups = new List<Pickup>();
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -144,7 +146,7 @@ public class GameplayScene : Scene
         _healthTextPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 0.5f);
 
         // Set the origin of the text so it is left-centered.
-        float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
+        float scoreTextYOrigin = _font.MeasureString("Gold").Y * 0.5f;
         _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
 
         // Set the origin of the text so it is right-centered.
@@ -195,6 +197,9 @@ public class GameplayScene : Scene
 
         // Load the sound effect to play when ui actions occur.
         _uiSoundEffect = Core.Content.Load<SoundEffect>("audio/ui");
+
+        _goldSprite = _atlas.CreateSprite("gold-1", 3.0f);
+        _heartSprite = _atlas.CreateSprite("heart-1", 3.0f);
     }
 
     public override void Update(GameTime gameTime)
@@ -236,37 +241,24 @@ public class GameplayScene : Scene
         // Loop through each enemy
         foreach (Enemy enemy in _enemies)
         {
-            // Check if enemies are colliding with each other, if so push them away a bit
-            // This is janky and needs to be improved tbh
-            // foreach(Enemy otherEnemy in _enemies)
-            // {
-            //     if(enemy != otherEnemy && enemy.Bounds.Intersects(otherEnemy.Bounds))
-            //     {
-            //         Vector2 awayDirection = otherEnemy.Position - enemy.Position;
-
-            //         //Debug.WriteLine(awayDirection);
-
-            //         if (awayDirection != Vector2.Zero) awayDirection.Normalize();
-
-            //         enemy.ResetPosition(enemy.Position - awayDirection);
-            //     }
-            // }
-
             // Check if player is sticking their sword out
             if (_player.WeaponExtended)
             {
                 // If the enemy is touching the swords hitbox, set them to a new position and gain score
                 if (enemy.Bounds.Intersects(_player.Weapon.Hitbox))
                 {
+                    if (!enemy.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
                     enemy.TakeDamage(_player.Weapon.Damage, _player.Weapon.Position);
 
-                    // Sound effects
+                    
                     if (enemy.IsDead)
                     {
-                        Core.Audio.PlaySoundEffect(_bounceSoundEffect);
+                        Random rand = new Random();
+                        double pickupRoll = rand.NextDouble();
+                        if (pickupRoll <= 0.8) _pickups.Add(new Gold(enemy.GetCenter(), _goldSprite, 10));
+                        else _pickups.Add(new HeartPickup(enemy.GetCenter(), _heartSprite, 1));
                         continue;
-                    } 
-                    else Core.Audio.PlaySoundEffect(_collectSoundEffect);
+                    }
                 }
             }
 
@@ -278,7 +270,27 @@ public class GameplayScene : Scene
             }
         }
 
+        foreach(Pickup pickup in _pickups)
+        {
+            // If the pickup isn't intersecting with the player then just skip to the next item in the list
+            if (!pickup.Bounds.Intersects(_player.Bounds)) continue;
+
+            Core.Audio.PlaySoundEffect(_collectSoundEffect);
+
+            if (pickup is Gold gold)
+            {
+                _player.Gold += gold.Value;
+            }
+            else if (pickup is HeartPickup heart)
+            {
+                _player.Health.Heal(heart.Value);
+            }
+
+            pickup.IsCollected = true;
+        }
+
         _enemies.RemoveAll(enemy => enemy.IsDead);
+        _pickups.RemoveAll(pickup => pickup.IsCollected);
 
         _camera.Follow(_player.Position, _roomSize);
         CalculateTranslation(_camera);
@@ -493,6 +505,8 @@ public class GameplayScene : Scene
             obstacle.Draw();
         }
 
+        foreach (Pickup pickup in _pickups) pickup.Draw();
+
         // Draw the player sprite.
         _player.Draw();
 
@@ -519,7 +533,7 @@ public class GameplayScene : Scene
         // Draw the score.
         Core.SpriteBatch.DrawString(
             _font,              // spriteFont
-            $"Score: {_score}", // text
+            $"Gold: {_player.Gold}", // text
             _scoreTextPosition, // position
             Color.Red,        // color
             0.0f,               // rotation
