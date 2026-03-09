@@ -34,4 +34,6 @@ public class Pickup
     {
         _sprite.Draw(Core.SpriteBatch, _position);
     }
+
+    public virtual void Collect(Player player){}
 }

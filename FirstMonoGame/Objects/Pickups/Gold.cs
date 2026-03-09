@@ -17,4 +17,9 @@ public class Gold : Pickup
     {
         Value = value;
     }
+
+    public override void Collect(Player player)
+    {
+        player.Gold += Value;
+    }
 }

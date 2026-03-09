@@ -17,4 +17,9 @@ public class HeartPickup : Pickup
     {
         Value = value;
     }
+
+    public override void Collect(Player player)
+    {
+        player.Health.Heal(Value);
+    }
 }

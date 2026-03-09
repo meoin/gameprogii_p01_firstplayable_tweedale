@@ -32,24 +32,9 @@ internal class HoppingMoveStrategy : IMoveStrategy
     {
         Vector2 newPosition = position;
 
-        if (_hopping)
-        {
-            _hopDistanceTravelled += (float)gameTime.ElapsedGameTime.TotalSeconds * _hopSpeed;
-            _hopDistanceTravelled = MathF.Min(_hopDistanceTravelled, 1.0f);
-            newPosition = Vector2.SmoothStep(_hopOriginPoint, _target, _hopDistanceTravelled);
-
-            if (_hopDistanceTravelled >= 1.0f) 
-            {
-                _hopping = false;
-                _hopTimer = _hopTimerMax;
-                _hopDistanceTravelled = 0f;
-            }
-
-            return newPosition;
-        }
+        if (_hopping) return HopTravel(gameTime);
 
         _hopTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-
         if (_hopTimer > 0) return newPosition;
 
         _hopping = true;
@@ -66,6 +51,22 @@ internal class HoppingMoveStrategy : IMoveStrategy
             float randomXDistance = (float)(rand.NextDouble() * (_aggroRange * 2) - _aggroRange) * 0.8f;
             float randomYDistance = (float)(rand.NextDouble() * (_aggroRange * 2) - _aggroRange) * 0.8f;
             _target = new Vector2(position.X + randomXDistance, position.Y + randomYDistance);
+        }
+
+        return newPosition;
+    }
+
+    private Vector2 HopTravel(GameTime gameTime)
+    {
+        _hopDistanceTravelled += (float)gameTime.ElapsedGameTime.TotalSeconds * _hopSpeed;
+        _hopDistanceTravelled = MathF.Min(_hopDistanceTravelled, 1.0f);
+        Vector2 newPosition = Vector2.SmoothStep(_hopOriginPoint, _target, _hopDistanceTravelled);
+
+        if (_hopDistanceTravelled >= 1.0f)
+        {
+            _hopping = false;
+            _hopTimer = _hopTimerMax;
+            _hopDistanceTravelled = 0f;
         }
 
         return newPosition;
