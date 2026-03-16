@@ -248,7 +248,7 @@ public class GameplayScene : Scene
                 if (enemy.Bounds.Intersects(_player.Weapon.Hitbox))
                 {
                     if (!enemy.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
-                    enemy.TakeDamage(_player.Weapon.Damage, _player.Weapon.Position);
+                    enemy.TakeDamage(_player.Weapon.Damage, _player.Weapon.Knockback, _player.Weapon.Position);
 
                     
                     if (enemy.IsDead)
@@ -277,14 +277,7 @@ public class GameplayScene : Scene
 
             Core.Audio.PlaySoundEffect(_collectSoundEffect);
 
-            if (pickup is Gold gold)
-            {
-                _player.Gold += gold.Value;
-            }
-            else if (pickup is HeartPickup heart)
-            {
-                _player.Health.Heal(heart.Value);
-            }
+            pickup.Collect(_player);
 
             pickup.IsCollected = true;
         }

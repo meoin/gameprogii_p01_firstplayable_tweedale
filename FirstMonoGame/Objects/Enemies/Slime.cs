@@ -21,7 +21,7 @@ public class Slime : Enemy
     {
         PreviousPosition = Position;
 
-        _position = _moveStrategy.Move(_position, MOVEMENT_SPEED * _speedMultiplier, roomBounds, gameTime);
+        _targetPosition = _moveStrategy.Move(_position, MOVEMENT_SPEED * _speedMultiplier, roomBounds, gameTime);
 
         base.Update(gameTime, roomBounds);
     }

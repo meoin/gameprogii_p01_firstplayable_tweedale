@@ -12,6 +12,7 @@ namespace FirstMonoGame.Objects;
 public class Entity
 {
     public const int DEFAULT_MAX_SHIELD = 5;
+    private const int DEFAULT_KNOCKBACK = 1;
     private const float HURT_INVINCIBILITY_SECONDS = 2.5f;
     public bool InvincibleAfterBeingHurt = false;
     private float _hurtInvincibilityTimer = 0f;
@@ -26,6 +27,9 @@ public class Entity
     public Vector2 PreviousPosition { get; protected set; }
     protected Vector2 _position;
     protected bool _animateSprite = true;
+    protected bool _inKnockback = false;
+    protected Vector2 _knockbackVector;
+    protected float _knockbackTimer;
     public Vector2 Position
     {
         get => _position;
@@ -88,6 +92,8 @@ public class Entity
             }
         }
 
+        if (_inKnockback) ApplyKnockback(gameTime);
+
         RemainWithinRoomBounds(roomBounds);
 
         if (_animateSprite) Sprite.Update(gameTime);
@@ -132,24 +138,40 @@ public class Entity
         {
             _position.Y = roomBounds.Bottom - Sprite.Height;
         }
+    }
 
-        
+    protected void ApplyKnockback(GameTime gameTime)
+    {
+        float frameTime = (float)gameTime.ElapsedGameTime.TotalSeconds * 2;
+
+        float knockbackX = _knockbackVector.X * frameTime;
+        float knockbackY = _knockbackVector.Y * frameTime;
+
+        _position = new Vector2(_position.X + knockbackX, _position.Y + knockbackY);
+
+        _knockbackVector = new Vector2(_knockbackVector.X - knockbackX, _knockbackVector.Y - knockbackY);
+
+        _knockbackTimer += frameTime;
+
+        if (_knockbackTimer >= 1f) _inKnockback = false;
     }
 
     public virtual void TakeDamage(int damage, Vector2 source)
     {
+        int knockback = DEFAULT_KNOCKBACK;
+
         if (InvincibleAfterBeingHurt) return;
 
-        // FIX THIS LATER!!!
-        // Will probably need to set a target position to push them back and if they're in a knockback state, lerp to that position quickly
-        // Right now it just teleports them which can teleport into walls which is VERY UGLY AND BAD!!!!
+        TakeDamage(damage, knockback, source);
+    }
 
-        // vvvvvvvvvvvvvvvvvvv
+    public virtual void TakeDamage(int damage, int knockback, Vector2 source)
+    {
+        if (InvincibleAfterBeingHurt) return;
 
-        // Vector2 knockbackVector = new Vector2(_position.X - source.X, _position.Y - source.Y);
-        // _position = new Vector2(_position.X + knockbackVector.X, _position.Y + knockbackVector.Y);
-
-        // ^^^^^^^^^^^^^^^^^^^
+        _knockbackVector = new Vector2((_position.X - source.X) * knockback, (_position.Y - source.Y) * knockback);
+        _knockbackTimer = 0f;
+        _inKnockback = true;
         
         TakeDamage(damage);
     }

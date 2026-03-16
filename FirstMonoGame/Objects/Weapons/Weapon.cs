@@ -20,14 +20,16 @@ public class Weapon
     public Vector2 Position {get; private set; }
     private float _rotation;
     public int Damage;
+    public int Knockback;
 
-    public Weapon(Sprite sprite, Vector2 source, int damage)
+    public Weapon(Sprite sprite, Vector2 source, int damage, int knockback)
     {
         Sprite = sprite;
         Position = source;
         SetDirection(source, Direction.Right);
         _rotation = 0f;
         Damage = damage;
+        Knockback = knockback;
     }
 
     public void SetDirection(Vector2 source, Direction direction)

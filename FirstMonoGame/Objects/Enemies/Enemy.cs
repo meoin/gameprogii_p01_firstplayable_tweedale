@@ -12,6 +12,7 @@ public class Enemy : Entity
 {
     private const float MOVEMENT_SPEED = 300.0f;
     protected IMoveStrategy _moveStrategy;
+    protected Vector2 _targetPosition;
 
     public Enemy(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite) : base(name, maxHealth, maxShield, startingShield, position, sprite)
     {
@@ -25,6 +26,10 @@ public class Enemy : Entity
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)
     {
+        PreviousPosition = Position;
+
+        if (!_inKnockback) _position = _targetPosition;
+
         base.Update(gameTime, roomBounds);
     }
 
@@ -33,9 +38,9 @@ public class Enemy : Entity
         _position = newPosition;
     }
 
-    public override void TakeDamage(int damage, Vector2 source)
+    public override void TakeDamage(int damage, int knockback, Vector2 source)
     {
-        base.TakeDamage(damage, source);
+        base.TakeDamage(damage, knockback, source);
 
         if (Health.CurrentHealth <= 0) Die();
     }

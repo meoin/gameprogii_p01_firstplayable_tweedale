@@ -23,7 +23,7 @@ public class Bat : Enemy
     {
         PreviousPosition = _position;
 
-        _position = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
+        _targetPosition = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
 
         base.Update(gameTime, roomBounds);
     }

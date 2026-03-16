@@ -21,7 +21,7 @@ public class Spider : Enemy
     {
         PreviousPosition = Position;
 
-        _position = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
+        _targetPosition = _moveStrategy.Move(_position, MOVEMENT_SPEED, roomBounds, gameTime);
 
         _animateSprite = _moveStrategy.Moving();
 
