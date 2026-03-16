@@ -35,8 +35,17 @@ public class Entity
         get => _position;
     }
     public AnimatedSprite Sprite { get; private set; }
-    public Circle Bounds 
+    public Circle Hitbox 
     { 
+        get => new Circle
+        (
+            (int)(Position.X + (Sprite.Width * 0.5f)),
+            (int)(Position.Y + (Sprite.Height * 0.5f)),
+            (int)(Sprite.Width * 0.3f)
+        );
+    }
+    public Circle Bounds
+    {
         get => new Circle
         (
             (int)(Position.X + (Sprite.Width * 0.5f)),
@@ -118,25 +127,27 @@ public class Entity
 
     private void RemainWithinRoomBounds(Rectangle roomBounds)
     {
+        float boundsMargin = (float)(Sprite.Width * 0.5) - (float)Bounds.Radius;
+
         // Use distance based checks to determine if the entity is within the
         // bounds of the game screen, and if it is outside that screen edge,
         // move it back inside.
         if (Bounds.Left < roomBounds.Left)
         {
-            _position.X = roomBounds.Left;
+            _position.X = roomBounds.Left - boundsMargin;
         }
         else if (Bounds.Right > roomBounds.Right)
         {
-            _position.X = roomBounds.Right - Sprite.Width;
+            _position.X = roomBounds.Right - Sprite.Width + boundsMargin;
         }
 
         if (Bounds.Top < roomBounds.Top)
         {
-            _position.Y = roomBounds.Top;
+            _position.Y = roomBounds.Top - boundsMargin;
         }
         else if (Bounds.Bottom > roomBounds.Bottom)
         {
-            _position.Y = roomBounds.Bottom - Sprite.Height;
+            _position.Y = roomBounds.Bottom - Sprite.Height + boundsMargin;
         }
     }
 

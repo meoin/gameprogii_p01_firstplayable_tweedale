@@ -245,7 +245,7 @@ public class GameplayScene : Scene
             if (_player.WeaponExtended)
             {
                 // If the enemy is touching the swords hitbox, set them to a new position and gain score
-                if (enemy.Bounds.Intersects(_player.Weapon.Hitbox))
+                if (enemy.Hitbox.Intersects(_player.Weapon.Hitbox))
                 {
                     if (!enemy.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
                     enemy.TakeDamage(_player.Weapon.Damage, _player.Weapon.Knockback, _player.Weapon.Position);
@@ -262,7 +262,7 @@ public class GameplayScene : Scene
                 }
             }
 
-            if (enemy.Bounds.Intersects(_player.Bounds))
+            if (enemy.Hitbox.Intersects(_player.Hitbox))
             {
                 if (!_player.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
 
@@ -512,10 +512,15 @@ public class GameplayScene : Scene
         if (_showHitboxes)
         {
             foreach (Obstacle obstacle in _obstacles) Core.DrawRectangleOutline(obstacle.Bounds, Color.LimeGreen);
-            foreach (Enemy enemy in _enemies) Core.DrawRectangleOutline(enemy.Bounds);
+            foreach (Enemy enemy in _enemies)
+            {
+                Core.DrawRectangleOutline(enemy.Bounds, Color.Cyan);
+                Core.DrawRectangleOutline(enemy.Hitbox, Color.Red);
+            } 
             foreach (RoomTransition transition in _transitions) Core.DrawRectangleOutline(transition.Bounds, Color.Cyan);
             if (_player.WeaponExtended) Core.DrawRectangleOutline(_player.Weapon.Hitbox, Color.Red);
             Core.DrawRectangleOutline(_player.Bounds, Color.Cyan);
+            Core.DrawRectangleOutline(_player.Hitbox, Color.Red);
             Core.DrawRectangleOutline(_roomBounds, Color.LimeGreen);
         }
 
@@ -547,6 +552,24 @@ public class GameplayScene : Scene
             SpriteEffects.None, // effects
             0.0f                // layerDepth
         );
+
+        if (Core.ShowFPS)
+        {
+            float framerate = (float)(1 / gameTime.ElapsedGameTime.TotalSeconds);
+            var fps = string.Format("FPS: {0:F0}", framerate);
+
+            Core.SpriteBatch.DrawString(
+                _font,
+                fps,
+                new Vector2(0, 0),
+                Color.Black,
+                0.0f,
+                new Vector2(0, 0),
+                1.0f,
+                SpriteEffects.None,
+                0.0f
+            );
+        } 
 
         Core.SpriteBatch.End();
 

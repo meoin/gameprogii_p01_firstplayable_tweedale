@@ -77,6 +77,8 @@ public class Core : Game
 
     private static int _defaultWidth;
     private static int _defaultHeight;
+    public static FrameCounter FrameCounter;
+    public static bool ShowFPS;
 
     /// <summary>
     /// Creates a new Core instance.
@@ -150,6 +152,9 @@ public class Core : Game
         // Create a new audio controller.
         Audio = new AudioController();
 
+        // Create a new frame counter.
+        FrameCounter = new FrameCounter();
+
         // Sets resolution to native monitor resolution if the game is fullscreen
         if (Graphics.IsFullScreen)
         {
@@ -179,6 +184,11 @@ public class Core : Game
             Exit();
         }
 
+        if (Input.Keyboard.WasKeyJustPressed(Keys.F1))
+        {
+            ShowFPS = !ShowFPS;
+        }
+
         // if there is a next scene waiting to be switch to, then transition
         // to that scene.
         if (s_nextScene != null)
@@ -191,6 +201,8 @@ public class Core : Game
         {
             s_activeScene.Update(gameTime);
         }
+
+        FrameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }

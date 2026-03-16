@@ -205,9 +205,28 @@ public class TitleScene : Scene
             // Draw the Slime text on top of that at its original position.
             Core.SpriteBatch.DrawString(_font5x, QUEST_TEXT, _slimeTextPos, Color.White, 0.0f, _slimeTextOrigin, 1.0f - _textScaleModifier, SpriteEffects.None, 1.0f);
 
+            if (Core.ShowFPS)
+            {
+                var fps = string.Format("FPS: {0:F0}", Core.FrameCounter.CurrentFramesPerSecond);
+
+                Core.SpriteBatch.DrawString(
+                    _font,
+                    fps,
+                    new Vector2(0, 0),
+                    Color.Black,
+                    0.0f,
+                    new Vector2(0, 0),
+                    1.0f,
+                    SpriteEffects.None,
+                    0.0f
+                );
+            }
+
             // Always end the sprite batch when finished.
             Core.SpriteBatch.End();
         }
+
+        
 
         GumService.Default.Draw();
     }
