@@ -28,6 +28,12 @@
         <Region name="player-dying-4" x="360" y="60" width="20" height="4" />
         <Region name="player-dying-5" x="360" y="60" width="20" height="1" />
         <Region name="sword" x="360" y="80" width="26" height="14" />
+        <Region name="slash-1" x="380" y="60" width="10" height="20"/>
+        <Region name="slash-2" x="390" y="60" width="10" height="20"/>
+        <Region name="slash-3" x="400" y="60" width="10" height="20"/>
+        <Region name="slash-4" x="410" y="60" width="10" height="20"/>
+        <Region name="slash-5" x="420" y="60" width="10" height="20"/>
+        <Region name="slash-6" x="430" y="60" width="10" height="20"/>
     </Regions>
     <Animations>
         <Animation name="slime-animation" delay="200">
@@ -59,6 +65,14 @@
         <Animation name="focused-button-animation" delay="300">
             <Frame region="focused-button-1" />
             <Frame region="focused-button-2" />
+        </Animation>
+        <Animation name="slash-animation" delay="100">
+            <Frame region="slash-1" />
+            <Frame region="slash-2" />
+            <Frame region="slash-3" />
+            <Frame region="slash-4" />
+            <Frame region="slash-5" />
+            <Frame region="slash-6" />
         </Animation>
     </Animations>
 </TextureAtlas>

@@ -46,9 +46,10 @@ public class GameplayScene : Scene
     protected SoundEffect _collectSoundEffect;
     protected Sprite _goldSprite;
     protected Sprite _heartSprite;
-   
+    protected AnimatedSprite _slashSprite;
+
     #endregion
-    
+
     #region Positional Value Definition
 
     // Defines the position to draw the score text at.
@@ -131,7 +132,7 @@ public class GameplayScene : Scene
         Vector2 gameStartPosition = GetSpecificTile(1, 10);
 
         // Initialize the player
-        _player ??= new Player(5, gameStartPosition, _playerSprite, _swordSprite, _playerDeathSprite);
+        _player ??= new Player(5, gameStartPosition, _playerSprite, _slashSprite, _playerDeathSprite);
         if(_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
 
         _enemies = new List<Enemy>();
@@ -171,6 +172,9 @@ public class GameplayScene : Scene
         _swordSprite = _atlas.CreateSprite("sword");
         _swordSprite.Origin = new Vector2(0, _swordSprite.Region.Height * 0.5f);
         _swordSprite.Scale = new Vector2(4.0f, 4.0f);
+
+        _slashSprite = _atlas.CreateAnimatedSprite("slash-animation", 4.0f);
+        _slashSprite.Origin = new Vector2(0, _slashSprite.Region.Height * 0.5f);
 
         // Create the bat animated sprite from the atlas.
         _batSprite = _atlas.CreateAnimatedSprite("bat-animation", 4.0f);
@@ -242,7 +246,7 @@ public class GameplayScene : Scene
         foreach (Enemy enemy in _enemies)
         {
             // Check if player is sticking their sword out
-            if (_player.WeaponExtended)
+            if (_player.WeaponExtended && _player.Weapon.InHitFrame)
             {
                 // If the enemy is touching the swords hitbox, set them to a new position and gain score
                 if (enemy.Hitbox.Intersects(_player.Weapon.Hitbox))

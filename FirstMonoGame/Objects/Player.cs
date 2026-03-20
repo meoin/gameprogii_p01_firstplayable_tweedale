@@ -21,7 +21,7 @@ public class Player : Entity
     public Weapon Weapon;
     public int Gold;
 
-    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite)
+    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, AnimatedSprite swordSprite, AnimatedSprite deathSprite)
      : base( name, maxHealth, maxShield, startingShield, position, sprite)
     {
         Weapon = new Weapon(swordSprite, Position, 1, 2);
@@ -31,7 +31,7 @@ public class Player : Entity
         Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
     }
 
-    public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, Sprite swordSprite, AnimatedSprite deathSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
+    public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, AnimatedSprite swordSprite, AnimatedSprite deathSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
     {
         Weapon = new Weapon(swordSprite, Position, 1, 2);
         _deathSprite = deathSprite;
@@ -49,6 +49,9 @@ public class Player : Entity
             _deathSprite.Update(gameTime);
             if (_deathSprite.OnLastFrame()) Dead = true;
         }
+
+        if (WeaponExtended) Weapon.Update(gameTime);
+        if (WeaponExtended && Weapon.Sprite.OnLastFrame()) WeaponExtended = false;
 
         base.Update(gameTime, roomBounds);
     }
@@ -95,20 +98,14 @@ public class Player : Entity
         float speed = MOVEMENT_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds * _speedMultiplier;
         Vector2 movementVector = Vector2.Zero;
 
-        if (keyboard.IsKeyDown(Keys.Space))
+        if (keyboard.WasKeyJustPressed(Keys.Space) && !WeaponExtended)
         {
-            speed *= 0.5f;
             WeaponExtended = true;
-        }
-        else
-        {
-            WeaponExtended = false;
-        }
-        
-        if (keyboard.IsKeyDown(Keys.LeftShift))
-        {
-            if (!WeaponExtended) speed *= 1.5f;
-        }
+            Weapon.Sprite.ResetAnimation();
+        } 
+
+        if (WeaponExtended) speed *= 0.5f;
+        else if (keyboard.IsKeyDown(Keys.LeftShift)) speed *= 1.5f;
 
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
         {
@@ -169,17 +166,14 @@ public class Player : Entity
 
         Vector2 movementVector = Vector2.Zero;
 
-        if (gamepadOne.IsButtonDown(Buttons.X))
+        if (gamepadOne.WasButtonJustPressed(Buttons.X) && !WeaponExtended)
         {
-            speed *= 0.5f;
             WeaponExtended = true;
-        }
-        else
-        {
-            WeaponExtended = false;
+            Weapon.Sprite.ResetAnimation();
         }
 
-        if (gamepadOne.IsButtonDown(Buttons.A) && !WeaponExtended)
+        if (WeaponExtended) speed *= 0.5f;
+        else if (gamepadOne.IsButtonDown(Buttons.A))
         {
             speed *= 1.5f;
             gamepadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));

@@ -15,14 +15,16 @@ public enum Direction
 
 public class Weapon
 {
-    public Sprite Sprite { get; private set; }
+    private const int DEFAULT_HIT_FRAMES = 4;
+    public AnimatedSprite Sprite { get; private set; }
     public Rectangle Hitbox { get; private set; }
     public Vector2 Position {get; private set; }
     private float _rotation;
     public int Damage;
     public int Knockback;
+    public bool InHitFrame;
 
-    public Weapon(Sprite sprite, Vector2 source, int damage, int knockback)
+    public Weapon(AnimatedSprite sprite, Vector2 source, int damage, int knockback)
     {
         Sprite = sprite;
         Position = source;
@@ -30,6 +32,18 @@ public class Weapon
         _rotation = 0f;
         Damage = damage;
         Knockback = knockback;
+    }
+
+    public void Update(GameTime gameTime)
+    {
+        Sprite.Update(gameTime);
+        InHitFrame = Sprite.GetCurrentFrame() < DEFAULT_HIT_FRAMES;
+    }
+
+    public void Draw()
+    {
+        Sprite.Rotation = MathHelper.ToRadians(_rotation);
+        Sprite.Draw(Core.SpriteBatch, Position);
     }
 
     public void SetDirection(Vector2 source, Direction direction)
@@ -82,9 +96,5 @@ public class Weapon
         }
     }
 
-    public void Draw()
-    {
-        Sprite.Rotation = MathHelper.ToRadians(_rotation);
-        Sprite.Draw(Core.SpriteBatch, Position);
-    }
+    
 }

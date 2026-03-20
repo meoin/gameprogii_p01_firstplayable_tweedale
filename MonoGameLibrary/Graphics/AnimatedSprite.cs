@@ -77,4 +77,15 @@ public class AnimatedSprite : Sprite
     {
         return _currentFrame >= _animation.Frames.Count - 1;
     }
+
+    public void ResetAnimation()
+    {
+        _currentFrame = 0;
+        _elapsed = TimeSpan.Zero;
+    }
+
+    public int GetCurrentFrame()
+    {
+        return _currentFrame;
+    }
 }
