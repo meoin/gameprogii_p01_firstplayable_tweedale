@@ -132,7 +132,7 @@ public class GameplayScene : Scene
         Vector2 gameStartPosition = GetSpecificTile(1, 10);
 
         // Initialize the player
-        _player ??= new Player(5, gameStartPosition, _playerSprite, _slashSprite, _playerDeathSprite);
+        _player ??= new Player(5, gameStartPosition);
         if(_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
 
         _enemies = new List<Enemy>();
@@ -165,26 +165,23 @@ public class GameplayScene : Scene
         // Create the player animated sprite and death sprite from the atlas.
         _playerSprite = _atlas.CreateAnimatedSprite("player-animation", 4.0f);
         _playerDeathSprite = _atlas.CreateAnimatedSprite("player-dying-animation", 4.0f);
-
-        // Create the slime animated sprite from the atlas.
-        _slimeSprite = _atlas.CreateAnimatedSprite("slime-animation", 4.0f);
-
-        _swordSprite = _atlas.CreateSprite("sword");
-        _swordSprite.Origin = new Vector2(0, _swordSprite.Region.Height * 0.5f);
-        _swordSprite.Scale = new Vector2(4.0f, 4.0f);
+        Player.RootWalkSprite ??= _atlas.CreateAnimatedSprite("player-animation", 4.0f);
+        Player.RootDeathSprite ??= _atlas.CreateAnimatedSprite("player-dying-animation", 4.0f);
+        Player.RootRollSprite ??= _atlas.CreateAnimatedSprite("player-roll-animation", 4.0f);
 
         _slashSprite = _atlas.CreateAnimatedSprite("slash-animation", 4.0f);
         _slashSprite.Origin = new Vector2(0, _slashSprite.Region.Height * 0.5f);
+        Weapon.RootSlashSprite ??= _slashSprite;
 
-        // Create the bat animated sprite from the atlas.
+        // Create the enemy animated sprites from the atlas.
+        _slimeSprite = _atlas.CreateAnimatedSprite("slime-animation", 4.0f);
         _batSprite = _atlas.CreateAnimatedSprite("bat-animation", 4.0f);
-
         _spiderSprite = _atlas.CreateAnimatedSprite("spider-animation", 4.0f);
 
+        // Create the tilemap from the XML configuration file.
         _tilemapAtlas = TilemapAtlas.FromFile(Content, "images/tilemap-definition.xml");
         _tilemapAtlas.Scale = new Vector2(4.0f, 4.0f);
-
-        // Create the tilemap from the XML configuration file.
+        
         _tilemap = _tilemapAtlas.GetTilemap(_tilemapName);
 
         // Create the obstacle sprite from the atlas
@@ -266,7 +263,7 @@ public class GameplayScene : Scene
                 }
             }
 
-            if (enemy.Hitbox.Intersects(_player.Hitbox))
+            if (enemy.Hitbox.Intersects(_player.Hitbox) && !_player.InIFrames)
             {
                 if (!_player.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
 

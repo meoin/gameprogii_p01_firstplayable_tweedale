@@ -6,35 +6,45 @@ using MonoGameLibrary.Input;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using GumRuntime;
 
 namespace FirstMonoGame.Objects;
 
 public class Player : Entity
 {
-    private AnimatedSprite _deathSprite;
+    public static AnimatedSprite RootDeathSprite;
+    public static AnimatedSprite RootWalkSprite;
+    public static AnimatedSprite RootRollSprite;
+    private const int ROLL_IFRAMES = 5;
     private const float MOVEMENT_SPEED = 300.0f;
+    private AnimatedSprite _deathSprite;
+    private AnimatedSprite _rollSprite;
     public Vector2 FacingDirection;
     private bool _facingLeft = false;
     public bool WeaponExtended { get; private set; } = false;
     private bool _dying = false;
     public bool Dead { get; private set; } = false;
+    public bool Rolling { get; private set; } = false;
+    public bool InIFrames { get; private set; } = false;
     public Weapon Weapon;
     public int Gold;
 
-    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position, AnimatedSprite sprite, AnimatedSprite swordSprite, AnimatedSprite deathSprite)
-     : base( name, maxHealth, maxShield, startingShield, position, sprite)
+    public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position)
+     : base( name, maxHealth, maxShield, startingShield, position, RootWalkSprite)
     {
-        Weapon = new Weapon(swordSprite, Position, 1, 2);
-        _deathSprite = deathSprite;
+        Weapon = new Weapon(Position, 1, 2);
+        _deathSprite = RootDeathSprite;
+        _rollSprite = RootRollSprite;
         FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
 
         Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
     }
 
-    public Player(int maxHealth, Vector2 position, AnimatedSprite sprite, AnimatedSprite swordSprite, AnimatedSprite deathSprite) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, sprite)
+    public Player(int maxHealth, Vector2 position) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, RootWalkSprite)
     {
-        Weapon = new Weapon(swordSprite, Position, 1, 2);
-        _deathSprite = deathSprite;
+        Weapon = new Weapon(Position, 1, 2);
+        _deathSprite = RootDeathSprite;
+        _rollSprite = RootRollSprite;
         FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
 
         Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
@@ -50,10 +60,25 @@ public class Player : Entity
             if (_deathSprite.OnLastFrame()) Dead = true;
         }
 
+        if (Rolling) UpdateRoll(gameTime);
+
         if (WeaponExtended) Weapon.Update(gameTime);
         if (WeaponExtended && Weapon.Sprite.OnLastFrame()) WeaponExtended = false;
 
         base.Update(gameTime, roomBounds);
+    }
+
+    private void UpdateRoll(GameTime gameTime)
+    {
+        _rollSprite.Update(gameTime);
+
+        InIFrames = _rollSprite.GetCurrentFrame() < ROLL_IFRAMES;
+
+        if (!_rollSprite.OnLastFrame()) return;
+        
+        // If you are on the last frame of the roll:
+        Rolling = false;
+        _rollSprite.ResetAnimation();
     }
 
     public override void Draw()
@@ -66,14 +91,17 @@ public class Player : Entity
         if (_facingLeft)
         {
             Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+            _rollSprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
         }
-        else Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
-
-        if (!_dying) base.Draw();
         else
         {
-            _deathSprite.Draw(Core.SpriteBatch, Position);
-        }
+            Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+            _rollSprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
+        } 
+
+        if (!_dying && !Rolling) base.Draw();
+        else if (Rolling) _rollSprite.Draw(Core.SpriteBatch, Position);
+        else _deathSprite.Draw(Core.SpriteBatch, Position);
     }
 
     public override void TakeDamage(int damage)
@@ -95,17 +123,22 @@ public class Player : Entity
     {
         KeyboardInfo keyboard = Core.Input.Keyboard;
 
+        if (Rolling) _speedMultiplier = 1f;
+
         float speed = MOVEMENT_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds * _speedMultiplier;
         Vector2 movementVector = Vector2.Zero;
 
-        if (keyboard.WasKeyJustPressed(Keys.Space) && !WeaponExtended)
+        if (keyboard.WasKeyJustPressed(Keys.Space) && !WeaponExtended && !Rolling)
         {
             WeaponExtended = true;
             Weapon.Sprite.ResetAnimation();
         } 
 
         if (WeaponExtended) speed *= 0.5f;
-        else if (keyboard.IsKeyDown(Keys.LeftShift)) speed *= 1.5f;
+        else if (keyboard.WasKeyJustPressed(Keys.LeftShift)) Rolling = true;
+
+        if (Rolling) speed *= 1.5f;
+        if (_rollSprite.GetCurrentFrame() >= 5) speed *= 0f;
 
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
         {

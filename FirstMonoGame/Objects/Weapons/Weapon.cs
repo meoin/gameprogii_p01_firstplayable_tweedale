@@ -16,6 +16,7 @@ public enum Direction
 public class Weapon
 {
     private const int DEFAULT_HIT_FRAMES = 4;
+    public static AnimatedSprite RootSlashSprite;
     public AnimatedSprite Sprite { get; private set; }
     public Rectangle Hitbox { get; private set; }
     public Vector2 Position {get; private set; }
@@ -27,6 +28,16 @@ public class Weapon
     public Weapon(AnimatedSprite sprite, Vector2 source, int damage, int knockback)
     {
         Sprite = sprite;
+        Position = source;
+        SetDirection(source, Direction.Right);
+        _rotation = 0f;
+        Damage = damage;
+        Knockback = knockback;
+    }
+
+    public Weapon(Vector2 source, int damage, int knockback)
+    {
+        Sprite = RootSlashSprite;
         Position = source;
         SetDirection(source, Direction.Right);
         _rotation = 0f;
