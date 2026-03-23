@@ -19,6 +19,7 @@ using FirstMonoGame.Objects.Enemies;
 using FirstMonoGame.Objects.Pickups;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace FirstMonoGame.Scenes;
 
@@ -225,6 +226,7 @@ public class GameplayScene : Scene
         foreach (Enemy enemy in _enemies)
         {
             enemy.ObstacleInteraction(_obstacles, _roomBounds);
+            enemy.EntityInteraction(_enemies, _roomBounds);
         }
 
         // Check for keyboard input and handle it.

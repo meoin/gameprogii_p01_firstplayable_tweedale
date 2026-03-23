@@ -10,7 +10,7 @@ namespace FirstMonoGame.Objects.Enemies;
 
 public class Spider : Enemy
 {
-    private const float MOVEMENT_SPEED = 100.0f;
+    private const float MOVEMENT_SPEED = 600.0f;
 
     public Spider(int maxHealth, Vector2 position, AnimatedSprite sprite, Player player) : base("Slime", maxHealth, 0, 0, position, sprite)
     {

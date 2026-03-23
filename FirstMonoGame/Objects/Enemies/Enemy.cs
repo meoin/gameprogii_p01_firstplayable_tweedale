@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
@@ -31,6 +32,17 @@ public class Enemy : Entity
         if (!_inKnockback) _position = _targetPosition;
 
         base.Update(gameTime, roomBounds);
+    }
+
+    public void EntityInteraction(List<Enemy> enemies, Rectangle roomBounds)
+    {
+        foreach (Entity entity in enemies)
+        {
+            if (entity == this || entity is Bat) continue;
+            if (!Hitbox.Intersects(entity.Hitbox)) continue;
+
+            BlockMovement(entity.Hitbox.ToRectangle(), roomBounds);
+        }
     }
 
     public void ResetPosition(Vector2 newPosition)

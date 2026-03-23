@@ -6,6 +6,7 @@ using MonoGameLibrary.Input;
 using MonoGameLibrary.Obstacles;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using FirstMonoGame.Objects.Enemies;
 
 namespace FirstMonoGame.Objects;
 
@@ -223,6 +224,17 @@ public class Entity
         return Position + new Vector2(Sprite.Width / 2f, Sprite.Height / 2f);
     }
 
+    public virtual void EntityInteraction(List<Entity> entities, Rectangle roomBounds)
+    {
+        foreach (Entity entity in entities)
+        {
+            if (entity == this || entity is Bat) continue;
+            if (!Hitbox.Intersects(entity.Hitbox)) continue;
+
+            BlockMovement(entity.Hitbox.ToRectangle(), roomBounds);
+        }
+    }
+
     public virtual void ObstacleInteraction(List<Obstacle> obstacles, Rectangle roomBounds)
     {
         _speedMultiplier = 1f;
@@ -238,7 +250,7 @@ public class Entity
 
             if (obstacle is Wall)
             {
-                BlockMovement(obstacle, roomBounds);
+                BlockMovement(obstacle.Bounds, roomBounds);
             }
             else if (obstacle is SpeedModifier speedModifier)
             {
@@ -265,14 +277,14 @@ public class Entity
         _floorDamageTimerMax = newFloorDamageTime;
     }
 
-    private void BlockMovement(Obstacle obstacle, Rectangle roomBounds)
+    protected void BlockMovement(Rectangle obstacle, Rectangle roomBounds)
     {
         _position = PreviousPosition;
 
         // Try moving the entity in the X axis that they were trying to move without the Y axis
         _position += new Vector2(_lastMovementVector.X, 0);
 
-        if (!Bounds.Intersects(obstacle.Bounds))
+        if (!Bounds.Intersects(obstacle))
         {
             // Ensure entity is still remaining within the bounds of the room
             RemainWithinRoomBounds(roomBounds);
@@ -285,7 +297,7 @@ public class Entity
             _position = PreviousPosition;
             _position += new Vector2(0, _lastMovementVector.Y);
 
-            if (!Bounds.Intersects(obstacle.Bounds))
+            if (!Bounds.Intersects(obstacle))
             {
                 RemainWithinRoomBounds(roomBounds);
                 return;

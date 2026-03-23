@@ -32,7 +32,7 @@ internal class HoppingMoveStrategy : IMoveStrategy
     {
         Vector2 newPosition = position;
 
-        if (_hopping) return HopTravel(gameTime);
+        if (_hopping) return HopTravel(position, speed, gameTime);
 
         _hopTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (_hopTimer > 0) return newPosition;
@@ -63,6 +63,29 @@ internal class HoppingMoveStrategy : IMoveStrategy
         Vector2 newPosition = Vector2.SmoothStep(_hopOriginPoint, _target, _hopDistanceTravelled);
 
         if (_hopDistanceTravelled >= 1.0f)
+        {
+            _hopping = false;
+            _hopTimer = _hopTimerMax;
+            _hopDistanceTravelled = 0f;
+        }
+
+        return newPosition;
+    }
+
+    private Vector2 HopTravel(Vector2 position, float speed, GameTime gameTime)
+    {
+        Vector2 movementDirection = _target - position;
+
+        if (movementDirection != Vector2.Zero) movementDirection.Normalize();
+
+        Vector2 velocity = movementDirection * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        _entity.SetLastMovementVector(velocity);
+
+        Vector2 newPosition = position + velocity;
+
+        _hopDistanceTravelled += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (Vector2.Distance(position, _target) <= 10.0f || _hopDistanceTravelled >= 0.5f)
         {
             _hopping = false;
             _hopTimer = _hopTimerMax;
