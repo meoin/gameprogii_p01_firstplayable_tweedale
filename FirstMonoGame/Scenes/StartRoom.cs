@@ -40,24 +40,6 @@ public class StartRoom : GameplayScene
 
         Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 10 * _tilemap.TileHeight);
         // Set level transition
-        // _transitions.Add
-        // (
-        //     new RoomTransition
-        //     (
-        //         GetSpecificTile(_tilemap.Columns - 1, 2),
-        //         (int)_tilemap.TileWidth,
-        //         (int)_tilemap.TileHeight * 2,
-        //         new Room1("room-1", _player, transitionDestination),
-        //         transitionDestination,
-        //         new List<Obstacle> 
-        //         {
-        //             new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 2)),
-        //             new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 3))
-        //         }
-        //     )
-        // );
-
-        transitionDestination = new Vector2(_tilemap.TileWidth + 10, 2 * _tilemap.TileHeight);
         _transitions.Add
         (
             new RoomTransition
@@ -65,15 +47,17 @@ public class StartRoom : GameplayScene
                 GetSpecificTile(_tilemap.Columns - 1, 2),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
-                new SpiderHallwayRoom("spider-hallway", _player, transitionDestination),
+                new Room1("room-1", _player, transitionDestination),
                 transitionDestination,
-                new List<Obstacle>
+                new List<Obstacle> 
                 {
                     new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 2)),
                     new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 3))
                 }
             )
         );
+
+        
     }
 
     public override void LoadContent()

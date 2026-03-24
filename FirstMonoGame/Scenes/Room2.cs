@@ -41,21 +41,21 @@ public class Room2 : GameplayScene
         _enemies.Add(new Spider(4, GetSpecificTile(1, 1), _spiderSprite, _player));
 
 
-        Vector2 transitionDestination = new Vector2(20 * _tilemap.TileWidth, 5 * _tilemap.TileHeight) - new Vector2(_player.Sprite.Width + 10, 0);
+        Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, _tilemap.TileHeight * 26);
         // Set level transition
         _transitions.Add
         (
             new RoomTransition
             (
-                new Vector2(0, _tilemap.TileHeight * 4),
+                GetSpecificTile(_tilemap.Columns - 1, 4),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
-                new Room1("room-1", _player, transitionDestination),
+                new Room3("room-3", _player, transitionDestination),
                 transitionDestination,
                 new List<Obstacle>
                 {
-                    new Obstacle(_verticalWallSprite, new Vector2(-4, _tilemap.TileHeight * 4)),
-                    new Obstacle(_verticalWallSprite, new Vector2(-4, _tilemap.TileHeight * 5))
+                    new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 4)),
+                    new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 5))
                 }
             )
         );
