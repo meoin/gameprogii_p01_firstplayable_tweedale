@@ -16,6 +16,7 @@ public class Game1 : Core
 
     private static int _defaultWidth = 1280;
     public static int _defaultHeight = 720;
+    public static GameWindow GameWindowInstance;
 
     public Game1() : base("Dungeon Slime", _defaultWidth, _defaultHeight, false)
     {
@@ -31,6 +32,8 @@ public class Game1 : Core
         Audio.SetMasterVolume(1f);
         Audio.SetMusicVolume(0.2f);
         Audio.SetSoundEffectVolume(0.2f);
+
+        GameWindowInstance = Window;
 
         // Initialize the Gum UI service
         InitializeGum();

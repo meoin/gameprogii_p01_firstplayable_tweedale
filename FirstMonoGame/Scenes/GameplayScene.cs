@@ -47,6 +47,7 @@ public class GameplayScene : Scene
     protected SoundEffect _collectSoundEffect;
     protected Sprite _goldSprite;
     protected Sprite _heartSprite;
+    protected Sprite _shieldSprite;
     protected AnimatedSprite _slashSprite;
 
     #endregion
@@ -58,6 +59,7 @@ public class GameplayScene : Scene
 
     // Defines the position to draw the score text at.
     protected Vector2 _healthTextPosition;
+    protected Vector2 _shieldTextPosition;
 
     // Defines the origin used when drawing the score text.
     protected Vector2 _scoreTextOrigin;
@@ -146,6 +148,7 @@ public class GameplayScene : Scene
         _scoreTextPosition = new Vector2(Core.Bounds.Left, _tilemap.TileHeight * 0.5f);
 
         _healthTextPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 0.5f);
+        _shieldTextPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 1f);
 
         // Set the origin of the text so it is left-centered.
         float scoreTextYOrigin = _font.MeasureString("Gold").Y * 0.5f;
@@ -202,6 +205,7 @@ public class GameplayScene : Scene
 
         _goldSprite = _atlas.CreateSprite("gold-1", 3.0f);
         _heartSprite = _atlas.CreateSprite("heart-1", 3.0f);
+        _shieldSprite = _atlas.CreateSprite("cross-1", 3.0f);
     }
 
     public override void Update(GameTime gameTime)
@@ -241,48 +245,33 @@ public class GameplayScene : Scene
 
         _player.ObstacleInteraction(_obstacles, _roomBounds);
 
-        // Loop through each enemy
+        // Check if any enemies have hit the player
         foreach (Enemy enemy in _enemies)
         {
-            // Check if player is sticking their sword out
-            if (_player.WeaponExtended && _player.Weapon.InHitFrame)
+            if(_player.EnemyHitPlayer(enemy)) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
+        }
+
+        // Check if the player has hit any enemies
+        if (_player.WeaponExtended && _player.Weapon.InHitFrame)
+        {
+            foreach (Enemy enemy in _enemies)
             {
-                // If the enemy is touching the swords hitbox, set them to a new position and gain score
-                if (enemy.Hitbox.Intersects(_player.Weapon.Hitbox))
+                if (_player.HittingEnemy(enemy)) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
+
+                if (enemy.IsDead)
                 {
-                    if (!enemy.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
-                    enemy.TakeDamage(_player.Weapon.Damage, _player.Weapon.Knockback, _player.Weapon.Position);
-
-                    
-                    if (enemy.IsDead)
-                    {
-                        Random rand = new Random();
-                        double pickupRoll = rand.NextDouble();
-                        if (pickupRoll <= 0.8) _pickups.Add(new Gold(enemy.GetCenter(), _goldSprite, 10));
-                        else _pickups.Add(new HeartPickup(enemy.GetCenter(), _heartSprite, 1));
-                        continue;
-                    }
+                    Random rand = new Random();
+                    double pickupRoll = rand.NextDouble();
+                    if (pickupRoll <= 0.8) _pickups.Add(new Gold(enemy.GetCenter(), _goldSprite, 10));
+                    else _pickups.Add(new HeartPickup(enemy.GetCenter(), _heartSprite, 1));
+                    continue;
                 }
-            }
-
-            if (enemy.Hitbox.Intersects(_player.Hitbox) && !_player.InIFrames)
-            {
-                if (!_player.InvincibleAfterBeingHurt) Core.Audio.PlaySoundEffect(_bounceSoundEffect);
-
-                _player.TakeDamage(1);
             }
         }
 
-        foreach(Pickup pickup in _pickups)
+        foreach (Pickup pickup in _pickups)
         {
-            // If the pickup isn't intersecting with the player then just skip to the next item in the list
-            if (!pickup.Bounds.Intersects(_player.Bounds)) continue;
-
-            Core.Audio.PlaySoundEffect(_collectSoundEffect);
-
-            pickup.Collect(_player);
-
-            pickup.IsCollected = true;
+            if (_player.CheckPickupInteraction(pickup)) Core.Audio.PlaySoundEffect(_collectSoundEffect);
         }
 
         _enemies.RemoveAll(enemy => enemy.IsDead);
@@ -549,6 +538,18 @@ public class GameplayScene : Scene
             $"HP: {_player.Health.CurrentHealth}", // text
             _healthTextPosition, // position
             Color.Red,        // color
+            0.0f,               // rotation
+            _healthTextOrigin,   // origin
+            1.0f,               // scale
+            SpriteEffects.None, // effects
+            0.0f                // layerDepth
+        );
+
+        Core.SpriteBatch.DrawString(
+            _font,              // spriteFont
+            $"SH: {_player.Shield.CurrentHealth}", // text
+            _shieldTextPosition, // position
+            Color.Blue,        // color
             0.0f,               // rotation
             _healthTextOrigin,   // origin
             1.0f,               // scale

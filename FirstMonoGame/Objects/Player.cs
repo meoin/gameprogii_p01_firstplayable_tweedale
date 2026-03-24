@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using GumRuntime;
+using System.Collections.Generic;
+using FirstMonoGame.Objects.Pickups;
+using FirstMonoGame.Objects.Enemies;
 
 namespace FirstMonoGame.Objects;
 
@@ -54,7 +57,7 @@ public class Player : Entity
     {
         PreviousPosition = Position;
         if (!_dying && !_inKnockback) PlayerMovement(gameTime);
-        else
+        else if (_dying)
         {
             _deathSprite.Update(gameTime);
             if (_deathSprite.OnLastFrame()) Dead = true;
@@ -251,5 +254,42 @@ public class Player : Entity
     public void SetPosition(Vector2 position)
     {
         _position = position;
+    }
+
+    public bool CheckPickupInteraction(Pickup pickup)
+    {
+        // If the pickup isn't intersecting with the player then just skip to the next item in the list
+        if (!pickup.Bounds.Intersects(Bounds)) return false;
+
+        pickup.Collect(this);
+        return true;
+    }
+
+    public bool HittingEnemy(Enemy enemy)
+    {
+        bool hit = false;
+
+        // If the enemy is touching the swords hitbox, set them to a new position and gain score
+        if (enemy.Hitbox.Intersects(Weapon.Hitbox))
+        {
+            if (!enemy.InvincibleAfterBeingHurt) hit = true;
+            enemy.TakeDamage(Weapon.Damage, Weapon.Knockback, Weapon.Position);
+        }
+
+        return hit;
+    }
+
+    public bool EnemyHitPlayer(Enemy enemy)
+    {
+        bool hit = false;
+
+        if (enemy.Hitbox.Intersects(Hitbox) && !InIFrames)
+        {
+            if (!InvincibleAfterBeingHurt) hit = true;
+
+            TakeDamage(1);
+        }
+
+        return hit;
     }
 }

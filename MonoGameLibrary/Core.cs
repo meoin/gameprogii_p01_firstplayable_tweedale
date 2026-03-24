@@ -258,7 +258,7 @@ public class Core : Game
         }
     }
 
-    private static void SetResolution(int width, int height)
+    public static void SetResolution(int width, int height)
     {
         Graphics.PreferredBackBufferWidth = width;
         Graphics.PreferredBackBufferHeight = height;

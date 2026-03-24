@@ -18,6 +18,7 @@ using FirstMonoGame.Objects;
 using FirstMonoGame.Objects.Enemies;
 using System.Collections.Generic;
 using System.Diagnostics;
+using FirstMonoGame.Objects.Pickups;
 
 namespace FirstMonoGame.Scenes;
 
@@ -46,6 +47,8 @@ public class Room1 : GameplayScene
 
         _enemies.Add(new Bat(3, GetSpecificTile(15, 4), _batSprite));
         _enemies.Add(new Bat(3, GetSpecificTile(8, 7), _batSprite));
+
+        _pickups.Add(new Shield(GetSpecificTile(15, 10), _shieldSprite, 1));
 
 
         Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 4 * _tilemap.TileHeight);

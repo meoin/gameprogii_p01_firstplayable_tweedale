@@ -36,6 +36,8 @@ public class Enemy : Entity
 
     public void EntityInteraction(List<Enemy> enemies, Rectangle roomBounds)
     {
+        if (this is Bat) return;
+
         foreach (Entity entity in enemies)
         {
             if (entity == this || entity is Bat) continue;

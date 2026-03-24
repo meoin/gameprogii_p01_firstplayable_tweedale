@@ -12,6 +12,7 @@
         <Region name="spider-3" x="380" y="40" width="20" height="20" />
         <Region name="gold-1" x="400" y="0" width="20" height="20" />
         <Region name="heart-1" x="400" y="20" width="20" height="20" />
+        <Region name="cross-1" x="400" y="40" width="20" height="20" />
         <Region name="unfocused-button" x="259" y="80" width="65" height="14" />
         <Region name="focused-button-1" x="259" y="94" width="65" height="14" />
         <Region name="focused-button-2" x="259" y="109" width="65" height="14" />

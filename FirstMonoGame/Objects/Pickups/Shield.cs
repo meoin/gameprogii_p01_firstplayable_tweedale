@@ -9,18 +9,18 @@ using System.Collections.Generic;
 
 namespace FirstMonoGame.Objects.Pickups;
 
-public class HeartPickup : Pickup
+public class Shield : Pickup
 {
     public int Value;
 
-    public HeartPickup(Vector2 position, Sprite sprite, int value) : base(position, sprite)
+    public Shield(Vector2 position, Sprite sprite, int value) : base(position, sprite)
     {
         Value = value;
     }
 
     public override void Collect(Player player)
     {
-        player.Health.Heal(Value);
+        player.Shield.Heal(Value);
         base.Collect(player);
     }
 }

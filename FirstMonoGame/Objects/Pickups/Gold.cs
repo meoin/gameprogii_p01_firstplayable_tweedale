@@ -21,5 +21,6 @@ public class Gold : Pickup
     public override void Collect(Player player)
     {
         player.Gold += Value;
+        base.Collect(player);
     }
 }

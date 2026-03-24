@@ -11,6 +11,7 @@ using FirstMonoGame.UI;
 using MonoGameGum;
 using Gum.Forms.Controls;
 using MonoGameGum.GueDeriving;
+using Gum.Forms;
 
 namespace FirstMonoGame.Scenes;
 
@@ -77,6 +78,11 @@ public class TitleScene : Scene
     // are created.
     private TextureAtlas _atlas;
 
+    private int originalBufferWidth;
+    private int originalBufferHeight;
+    private int originalWindowX;
+    private int originalWindowY;
+
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -107,6 +113,11 @@ public class TitleScene : Scene
         // Set the background pattern destination rectangle to fill the entire
         // screen background.
         _backgroundDestination = Core.Bounds;
+
+        originalBufferHeight = Core.Graphics.PreferredBackBufferHeight;
+        originalBufferWidth = Core.Graphics.PreferredBackBufferWidth;
+        originalWindowX = Game1.GameWindowInstance.Position.X;
+        originalWindowY = Game1.GameWindowInstance.Position.Y;
 
         InitializeUI();
     }
@@ -158,7 +169,19 @@ public class TitleScene : Scene
         }
 
         _textScaleModifier = (float)Math.Sin(gameTime.TotalGameTime.TotalSeconds) * _maxTextScaleVariance;
-        //Debug.WriteLine($"Textscalemod: {_textScaleModifier}");
+
+        // Commented out below was just me experimenting around with fluidly changing the screen size and position
+        // had nothing to do with this project but just thought it'd be cool to be able to do this in some type of game
+        // to like make the game window stretch and expand based on the context or something
+
+        /* 
+        int screenWidth = (int)(originalBufferWidth * (1.0f + _textScaleModifier));
+        int screenHeight = (int)(originalBufferHeight * (1.0f + _textScaleModifier));
+        int windowPositionX = (originalWindowX - (screenWidth - originalBufferWidth) / 2);
+        int windowPositionY = (originalWindowY - (screenHeight - originalBufferHeight) / 2);
+        Core.SetResolution(screenWidth, screenHeight);
+        Game1.GameWindowInstance.Position = new Point(windowPositionX, windowPositionY); 
+        */
 
         // Update the offsets for the background pattern wrapping so that it
         // scrolls down and to the right.

@@ -12,9 +12,9 @@ namespace FirstMonoGame.Objects;
 
 public class Entity
 {
-    public const int DEFAULT_MAX_SHIELD = 5;
+    public const int DEFAULT_MAX_SHIELD = 1;
     private const int DEFAULT_KNOCKBACK = 1;
-    private const float HURT_INVINCIBILITY_SECONDS = 2.5f;
+    private const float HURT_INVINCIBILITY_SECONDS = 1.5f;
     public bool InvincibleAfterBeingHurt = false;
     private float _hurtInvincibilityTimer = 0f;
     protected float _speedMultiplier = 1f;
@@ -226,6 +226,8 @@ public class Entity
 
     public virtual void EntityInteraction(List<Entity> entities, Rectangle roomBounds)
     {
+        if (this is Bat) return;
+        
         foreach (Entity entity in entities)
         {
             if (entity == this || entity is Bat) continue;
