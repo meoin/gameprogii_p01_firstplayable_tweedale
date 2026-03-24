@@ -41,12 +41,12 @@ public class Room1 : GameplayScene
         _enemies.Add(new Slime(2, GetSpecificTile(6, 6), _slimeSprite, _player));
         _enemies.Add(new Slime(2, GetSpecificTile(13, 10), _slimeSprite, _player));
 
-        _enemies.Add(new Spider(2, GetSpecificTile(16, 9), _spiderSprite, _player));
-        _enemies.Add(new Spider(4, GetSpecificTile(3, 2), _spiderSprite, _player));
-        _enemies.Add(new Spider(4, GetSpecificTile(11, 2), _spiderSprite, _player));
+        _enemies.Add(new Spider(3, GetSpecificTile(16, 9), _spiderSprite, _player));
+        _enemies.Add(new Spider(3, GetSpecificTile(3, 2), _spiderSprite, _player));
+        _enemies.Add(new Spider(3, GetSpecificTile(11, 2), _spiderSprite, _player));
 
-        _enemies.Add(new Bat(3, GetSpecificTile(15, 4), _batSprite));
-        _enemies.Add(new Bat(3, GetSpecificTile(8, 7), _batSprite));
+        _enemies.Add(new Bat(2, GetSpecificTile(15, 4), _batSprite));
+        _enemies.Add(new Bat(2, GetSpecificTile(8, 7), _batSprite));
 
         _pickups.Add(new Shield(GetSpecificTile(15, 10), _shieldSprite, 1));
 

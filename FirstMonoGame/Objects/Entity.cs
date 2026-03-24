@@ -254,7 +254,10 @@ public class Entity
             {
                 BlockMovement(obstacle.Bounds, roomBounds);
             }
-            else if (obstacle is SpeedModifier speedModifier)
+
+            if (!Hitbox.Intersects(obstacle.Bounds)) continue;
+
+            if (obstacle is SpeedModifier speedModifier)
             {
                 _speedMultiplier = speedModifier.SpeedChange;
             }
