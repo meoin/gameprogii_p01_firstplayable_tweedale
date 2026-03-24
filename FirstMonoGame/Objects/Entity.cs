@@ -12,7 +12,7 @@ namespace FirstMonoGame.Objects;
 
 public class Entity
 {
-    public const int DEFAULT_MAX_SHIELD = 1;
+    public const int DEFAULT_MAX_SHIELD = 3;
     private const int DEFAULT_KNOCKBACK = 1;
     private const float HURT_INVINCIBILITY_SECONDS = 1.5f;
     public bool InvincibleAfterBeingHurt = false;

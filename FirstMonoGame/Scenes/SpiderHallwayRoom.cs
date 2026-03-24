@@ -35,11 +35,14 @@ public class SpiderHallwayRoom : GameplayScene
         _obstacles = _tilemap.GetObstacles();
         _transitions = new List<RoomTransition>();
 
-        // _enemies.Add(new Spider(4, GetSpecificTile(12, 2), _spiderSprite, _player));
-        // _enemies.Add(new Spider(4, GetSpecificTile(8, 7), _spiderSprite, _player));
-        // _enemies.Add(new Spider(4, GetSpecificTile(15, 4), _spiderSprite, _player));
-        // _enemies.Add(new Spider(4, GetSpecificTile(1, 1), _spiderSprite, _player));
-
+        _enemies.Add(new Spider(4, GetSpecificTile(8, 3), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(13, 4), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(15, 2), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(20, 3), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(25, 4), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(29, 2), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(33, 4), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(36, 3), _spiderSprite, _player));
 
         Vector2 transitionDestination = new Vector2(0, 0);
         _transitions.Add

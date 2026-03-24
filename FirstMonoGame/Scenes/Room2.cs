@@ -39,6 +39,7 @@ public class Room2 : GameplayScene
         _enemies.Add(new Spider(4, GetSpecificTile(8, 7), _spiderSprite, _player));
         _enemies.Add(new Spider(4, GetSpecificTile(15, 4), _spiderSprite, _player));
         _enemies.Add(new Spider(4, GetSpecificTile(1, 1), _spiderSprite, _player));
+        _enemies.Add(new Spider(4, GetSpecificTile(_tilemap.Columns/2, _tilemap.Rows/2), _spiderSprite, _player));
 
 
         Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, _tilemap.TileHeight * 26);

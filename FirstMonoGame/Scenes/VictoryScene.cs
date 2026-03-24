@@ -73,9 +73,6 @@ public class VictoryScene : Scene
     private SoundEffect _uiSoundEffect;
     private Panel _victoryScreenButtonsPanel;
 
-    // The options button used to open the options menu.
-    private AnimatedButton _returnButton;
-
     // Reference to the texture atlas that we can pass to UI elements when they
     // are created.
     private TextureAtlas _atlas;
