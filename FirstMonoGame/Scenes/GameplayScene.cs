@@ -49,6 +49,8 @@ public class GameplayScene : Scene
     protected Sprite _heartSprite;
     protected Sprite _shieldSprite;
     protected AnimatedSprite _slashSprite;
+    protected Sprite _verticalWallSprite;
+    protected Sprite _horizontalWallSprite;
 
     #endregion
 
@@ -85,6 +87,7 @@ public class GameplayScene : Scene
     protected List<Pickup> _pickups;
     protected FollowCamera _camera;
     protected Matrix _translation;
+    protected bool _roomComplete = false;
     protected bool _showHitboxes = false;
     protected bool _pauseEnemiesForTesting = false;
     
@@ -132,7 +135,7 @@ public class GameplayScene : Scene
         // Initial slime position will be the center tile of the tile map.
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
-        Vector2 gameStartPosition = GetSpecificTile(1, 10);
+        Vector2 gameStartPosition = GetSpecificTile(2, 3);
 
         // Initialize the player
         _player ??= new Player(5, gameStartPosition);
@@ -190,6 +193,9 @@ public class GameplayScene : Scene
 
         // Create the obstacle sprite from the atlas
         _obstacle = _atlas.CreateSprite("test-obstacle", 4.0f);
+
+        _verticalWallSprite = _atlas.CreateSprite("vertical-wall", 4.0f);
+        _horizontalWallSprite = _atlas.CreateSprite("horizontal-wall", 4.0f);
 
         // Load the bounce sound effect.
         _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce");
@@ -262,7 +268,9 @@ public class GameplayScene : Scene
                 {
                     Random rand = new Random();
                     double pickupRoll = rand.NextDouble();
-                    if (pickupRoll <= 0.8) _pickups.Add(new Gold(enemy.GetCenter(), _goldSprite, 10));
+                    bool playerAtMaxHealth = _player.Health.CurrentHealth == _player.Health.MaxHealth;
+
+                    if (pickupRoll <= 0.8 || playerAtMaxHealth) _pickups.Add(new Gold(enemy.GetCenter(), _goldSprite, 10));
                     else _pickups.Add(new HeartPickup(enemy.GetCenter(), _heartSprite, 1));
                     continue;
                 }
@@ -279,6 +287,16 @@ public class GameplayScene : Scene
 
         _camera.Follow(_player.Position, _roomSize);
         CalculateTranslation(_camera);
+
+        if(_enemies.Count <= 0 && !_roomComplete)
+        {
+            _roomComplete = true;
+
+            foreach(RoomTransition transition in _transitions)
+            {
+                transition.Open = true;
+            }
+        }
 
         if (_player.Dead) Core.ChangeScene(new TitleScene());
     }
@@ -345,6 +363,11 @@ public class GameplayScene : Scene
         if (keyboard.WasKeyJustPressed(Keys.T))
         {
             _showHitboxes = !_showHitboxes;
+        }
+
+        if (keyboard.WasKeyJustPressed(Keys.D0))
+        {
+            _enemies.Clear();
         }
 
         // Audio controls
@@ -483,7 +506,10 @@ public class GameplayScene : Scene
         // Draw the tilemap
         _tilemap.Draw(Core.SpriteBatch);
 
-
+        foreach(RoomTransition door in _transitions)
+        {
+            door.Draw();
+        }
 
         foreach (Obstacle obstacle in _obstacles)
         {

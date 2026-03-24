@@ -176,12 +176,12 @@ public class TilemapAtlas
                             {
                                 // Get the tileset index for this location
                                 int tilesetIndex = int.Parse(columns[column]);
-                                int obstacleIndex = 0;
+                                int obstacleIndex = -1;
                                 if (obstacles != null) obstacleIndex = int.Parse(obstacleColumns[column]);
 
                                 // Add that region to the tilemap at the row and column location
                                 map.SetTile(column, row, tilesetIndex);
-                                if (obstacleIndex != 0) map.SetObstacle(column, row, obstacleIndex);
+                                if (obstacleIndex != -1) map.SetObstacle(column, row, obstacleIndex);
                             }
                         }
 

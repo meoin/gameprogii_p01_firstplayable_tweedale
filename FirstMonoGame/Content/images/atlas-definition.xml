@@ -41,6 +41,8 @@
         <Region name="slash-4" x="410" y="60" width="10" height="20"/>
         <Region name="slash-5" x="420" y="60" width="10" height="20"/>
         <Region name="slash-6" x="430" y="60" width="10" height="20"/>
+        <Region name="vertical-wall" x="320" y="20" width="20" height="20" />
+        <Region name="horizontal-wall" x="280" y="0" width="20" height="20" />
     </Regions>
     <Animations>
         <Animation name="slime-animation" delay="200">

@@ -40,8 +40,8 @@ public class Room1 : GameplayScene
         _enemies.Add(new Slime(2, GetSpecificTile(2, 7), _slimeSprite, _player));
         _enemies.Add(new Slime(2, GetSpecificTile(6, 6), _slimeSprite, _player));
         _enemies.Add(new Slime(2, GetSpecificTile(13, 10), _slimeSprite, _player));
-        _enemies.Add(new Slime(2, GetSpecificTile(16, 9), _slimeSprite, _player));
 
+        _enemies.Add(new Spider(2, GetSpecificTile(16, 9), _spiderSprite, _player));
         _enemies.Add(new Spider(4, GetSpecificTile(3, 2), _spiderSprite, _player));
         _enemies.Add(new Spider(4, GetSpecificTile(11, 2), _spiderSprite, _player));
 
@@ -57,11 +57,16 @@ public class Room1 : GameplayScene
         (
             new RoomTransition
             (
-                GetSpecificTile(_tilemap.Columns - 1, 5) - new Vector2(10, 0),
+                GetSpecificTile(_tilemap.Columns - 1, 5),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
                 new Room2("room-2", _player, transitionDestination),
-                transitionDestination
+                transitionDestination,
+                new List<Obstacle>
+                {
+                    new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 5)),
+                    new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 6))
+                }
             )
         );
     }

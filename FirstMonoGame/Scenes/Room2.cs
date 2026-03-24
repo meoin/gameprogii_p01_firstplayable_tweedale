@@ -47,11 +47,16 @@ public class Room2 : GameplayScene
         (
             new RoomTransition
             (
-                GetSpecificTile(0, 4) - new Vector2(_tilemap.TileWidth - 10, 0),
+                new Vector2(0, _tilemap.TileHeight * 4),
                 (int)_tilemap.TileWidth,
                 (int)_tilemap.TileHeight * 2,
                 new Room1("room-1", _player, transitionDestination),
-                transitionDestination
+                transitionDestination,
+                new List<Obstacle>
+                {
+                    new Obstacle(_verticalWallSprite, new Vector2(-4, _tilemap.TileHeight * 4)),
+                    new Obstacle(_verticalWallSprite, new Vector2(-4, _tilemap.TileHeight * 5))
+                }
             )
         );
     }
