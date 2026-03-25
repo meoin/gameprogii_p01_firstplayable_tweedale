@@ -40,7 +40,6 @@ public class Room3 : GameplayScene
         _enemies.Add(new Spider(3, GetSpecificTile(11, 3), _spiderSprite, _player));
         _enemies.Add(new Spider(3, GetSpecificTile(19, 2), _spiderSprite, _player));
         _enemies.Add(new Spider(3, GetSpecificTile(1, 8), _spiderSprite, _player));
-        _enemies.Add(new Spider(3, GetSpecificTile(8, 7), _spiderSprite, _player));
         _enemies.Add(new Spider(3, GetSpecificTile(4, 15), _spiderSprite, _player));
         _enemies.Add(new Spider(3, GetSpecificTile(8, 13), _spiderSprite, _player));
         _enemies.Add(new Spider(3, GetSpecificTile(17, 14), _spiderSprite, _player));

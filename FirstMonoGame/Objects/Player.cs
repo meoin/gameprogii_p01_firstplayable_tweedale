@@ -136,11 +136,16 @@ public class Player : Entity
             WeaponExtended = true;
             Weapon.Sprite.ResetAnimation();
         } 
+        
+        if (keyboard.WasKeyJustPressed(Keys.LeftShift))
+        {
+            Rolling = true;
+            WeaponExtended = false;
+        }
 
         if (WeaponExtended) speed *= 0.5f;
-        else if (keyboard.WasKeyJustPressed(Keys.LeftShift)) Rolling = true;
+        else if (Rolling) speed *= 1.5f;
 
-        if (Rolling) speed *= 1.5f;
         if (_rollSprite.GetCurrentFrame() >= 5) speed *= 0f;
 
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))

@@ -51,6 +51,9 @@ public class GameplayScene : Scene
     protected AnimatedSprite _slashSprite;
     protected Sprite _verticalWallSprite;
     protected Sprite _horizontalWallSprite;
+    protected Sprite _heartContainerEmpty;
+    protected Sprite _heartContainerFull;
+    protected Sprite _shieldContainer;
 
     #endregion
 
@@ -60,8 +63,9 @@ public class GameplayScene : Scene
     protected Vector2 _scoreTextPosition;
 
     // Defines the position to draw the score text at.
-    protected Vector2 _healthTextPosition;
-    protected Vector2 _shieldTextPosition;
+    protected Vector2 _heartContainerStartPosition;
+    protected Vector2 _shieldContainerStartPosition;
+    protected float _heartContainerSpacing;
 
     // Defines the origin used when drawing the score text.
     protected Vector2 _scoreTextOrigin;
@@ -150,8 +154,10 @@ public class GameplayScene : Scene
         // room bounds, and to vertically be at the center of the first tile.
         _scoreTextPosition = new Vector2(Core.Bounds.Left, _tilemap.TileHeight * 0.5f);
 
-        _healthTextPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 0.5f);
-        _shieldTextPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 1f);
+        _heartContainerSpacing = _heartContainerEmpty.Width * 1.25f;
+
+        _heartContainerStartPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 0.5f) - new Vector2(_heartContainerSpacing * 6, 0);
+        _shieldContainerStartPosition = new Vector2(Core.Bounds.Right, _tilemap.TileHeight * 1f) - new Vector2(_heartContainerSpacing * 6, -1 * _heartContainerSpacing);
 
         // Set the origin of the text so it is left-centered.
         float scoreTextYOrigin = _font.MeasureString("Gold").Y * 0.5f;
@@ -208,6 +214,10 @@ public class GameplayScene : Scene
 
         // Load the sound effect to play when ui actions occur.
         _uiSoundEffect = Core.Content.Load<SoundEffect>("audio/ui");
+
+        _heartContainerEmpty = _atlas.CreateSprite("heart-container-empty", 2.0f);
+        _heartContainerFull = _atlas.CreateSprite("heart-container-full", 2.0f);
+        _shieldContainer = _atlas.CreateSprite("shield-container", 2.0f);
 
         _goldSprite = _atlas.CreateSprite("gold-1", 3.0f);
         _heartSprite = _atlas.CreateSprite("heart-1", 3.0f);
@@ -560,29 +570,53 @@ public class GameplayScene : Scene
             0.0f                // layerDepth
         );
 
-        Core.SpriteBatch.DrawString(
-            _font,              // spriteFont
-            $"HP: {_player.Health.CurrentHealth}", // text
-            _healthTextPosition, // position
-            Color.Red,        // color
-            0.0f,               // rotation
-            _healthTextOrigin,   // origin
-            1.0f,               // scale
-            SpriteEffects.None, // effects
-            0.0f                // layerDepth
-        );
+        for(int i = 0; i < _player.Health.CurrentHealth; i++)
+        {
+            _heartContainerFull.Draw(
+                Core.SpriteBatch,
+                _heartContainerStartPosition + new Vector2(_heartContainerSpacing * i, 0)
+            );
+        }
 
-        Core.SpriteBatch.DrawString(
-            _font,              // spriteFont
-            $"SH: {_player.Shield.CurrentHealth}", // text
-            _shieldTextPosition, // position
-            Color.Blue,        // color
-            0.0f,               // rotation
-            _healthTextOrigin,   // origin
-            1.0f,               // scale
-            SpriteEffects.None, // effects
-            0.0f                // layerDepth
-        );
+        for (int i = 0; i < _player.Health.MaxHealth - _player.Health.CurrentHealth; i++)
+        {
+            _heartContainerEmpty.Draw(
+                Core.SpriteBatch, 
+                _heartContainerStartPosition + new Vector2((_heartContainerSpacing * _player.Health.CurrentHealth) + (_heartContainerSpacing * i), 0)
+            );
+        }
+
+        for (int i = 0; i < _player.Shield.CurrentHealth; i++)
+        {
+            _shieldContainer.Draw(
+                Core.SpriteBatch,
+                _heartContainerStartPosition + new Vector2(_heartContainerSpacing * i, _heartContainerSpacing)
+            );
+        }
+
+        // Core.SpriteBatch.DrawString(
+        //     _font,              // spriteFont
+        //     $"HP: {_player.Health.CurrentHealth}", // text
+        //     _healthTextPosition, // position
+        //     Color.Red,        // color
+        //     0.0f,               // rotation
+        //     _healthTextOrigin,   // origin
+        //     1.0f,               // scale
+        //     SpriteEffects.None, // effects
+        //     0.0f                // layerDepth
+        // );
+
+        // Core.SpriteBatch.DrawString(
+        //     _font,              // spriteFont
+        //     $"SH: {_player.Shield.CurrentHealth}", // text
+        //     _shieldContainerStartPosition, // position
+        //     Color.Blue,        // color
+        //     0.0f,               // rotation
+        //     _healthTextOrigin,   // origin
+        //     1.0f,               // scale
+        //     SpriteEffects.None, // effects
+        //     0.0f                // layerDepth
+        // );
 
         if (Core.ShowFPS)
         {

@@ -43,6 +43,9 @@
         <Region name="slash-6" x="430" y="60" width="10" height="20"/>
         <Region name="vertical-wall" x="320" y="20" width="20" height="20" />
         <Region name="horizontal-wall" x="280" y="0" width="20" height="20" />
+        <Region name="heart-container-empty" x="400" y="80" width="20" height="20" />
+        <Region name="heart-container-full" x="420" y="80" width="20" height="20" />
+        <Region name="shield-container" x="440" y="80" width="20" height="20" />
     </Regions>
     <Animations>
         <Animation name="slime-animation" delay="200">
