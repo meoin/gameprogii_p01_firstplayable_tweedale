@@ -24,6 +24,19 @@ namespace FirstMonoGame.Scenes;
 
 public class StartRoom : GameplayScene
 {
+    private const int TUTORIAL_X_POS = 300;
+    private const int TUTORIAL_Y_POS = 30;
+    private const int TUTORIAL_X_OFFSET = 20;
+    private const string TUTORIAL_TEXT_MOVE = "WASD - Move";
+    private Vector2 _tutorialMovePos;
+    private Vector2 _tutorialMoveOrigin;
+    private const string TUTORIAL_TEXT_ATTACK = "Spacebar - Attack";
+    private Vector2 _tutorialAttackPos;
+    private Vector2 _tutorialAttackOrigin;
+    private const string TUTORIAL_TEXT_ROLL = "Shift - Roll";
+    private Vector2 _tutorialRollPos;
+    private Vector2 _tutorialRollOrigin;
+
     public StartRoom(string tilemapName) : base(tilemapName) { }
     public StartRoom(string tilemapName, Player player, Vector2 playerPosition) : base(tilemapName, player, playerPosition) { }
 
@@ -57,7 +70,18 @@ public class StartRoom : GameplayScene
             )
         );
 
-        
+        // Tutorial info
+        Vector2 size = _font.MeasureString(TUTORIAL_TEXT_MOVE);
+        _tutorialMovePos = new Vector2(TUTORIAL_X_POS, TUTORIAL_Y_POS);
+        _tutorialMoveOrigin = new Vector2(0, size.Y * 0.5f);
+
+        size = _font.MeasureString(TUTORIAL_TEXT_ATTACK);
+        _tutorialAttackPos = new Vector2(TUTORIAL_X_POS + TUTORIAL_X_OFFSET, _tutorialMovePos.Y + size.Y);
+        _tutorialAttackOrigin = new Vector2(0, size.Y * 0.5f);
+
+        size = _font.MeasureString(TUTORIAL_TEXT_ROLL);
+        _tutorialRollPos = new Vector2(TUTORIAL_X_POS + (2*TUTORIAL_X_OFFSET), _tutorialAttackPos.Y + size.Y);
+        _tutorialRollOrigin = new Vector2(0, size.Y * 0.5f);
     }
 
     public override void LoadContent()
@@ -73,5 +97,47 @@ public class StartRoom : GameplayScene
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
+
+        // Draw tutorial text
+
+        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        Core.SpriteBatch.DrawString(
+            _font,
+            TUTORIAL_TEXT_MOVE,
+            _tutorialMovePos,
+            Color.White,
+            0.0f,
+            _tutorialMoveOrigin,
+            1.0f,
+            SpriteEffects.None,
+            0.0f
+        );
+
+        Core.SpriteBatch.DrawString(
+            _font,
+            TUTORIAL_TEXT_ATTACK,
+            _tutorialAttackPos,
+            Color.White,
+            0.0f,
+            _tutorialAttackOrigin,
+            1.0f,
+            SpriteEffects.None,
+            0.0f
+        );
+
+        Core.SpriteBatch.DrawString(
+            _font,
+            TUTORIAL_TEXT_ROLL,
+            _tutorialRollPos,
+            Color.White,
+            0.0f,
+            _tutorialRollOrigin,
+            1.0f,
+            SpriteEffects.None,
+            0.0f
+        );
+
+        Core.SpriteBatch.End();
     }
 }

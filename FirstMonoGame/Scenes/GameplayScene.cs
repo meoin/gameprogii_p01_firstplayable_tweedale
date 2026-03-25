@@ -356,20 +356,20 @@ public class GameplayScene : Scene
         }
 
         
-        // if (keyboard.WasKeyJustPressed(Keys.P))
-        // {
-        //     _pauseEnemiesForTesting = !_pauseEnemiesForTesting;
-        // }
+        if (keyboard.WasKeyJustPressed(Keys.P))
+        {
+            _pauseEnemiesForTesting = !_pauseEnemiesForTesting;
+        }
 
-        // if (keyboard.WasKeyJustPressed(Keys.T))
-        // {
-        //     _showHitboxes = !_showHitboxes;
-        // }
+        if (keyboard.WasKeyJustPressed(Keys.T))
+        {
+            _showHitboxes = !_showHitboxes;
+        }
 
-        // if (keyboard.WasKeyJustPressed(Keys.D0))
-        // {
-        //     _enemies.Clear();
-        // }
+        if (keyboard.WasKeyJustPressed(Keys.D0))
+        {
+            _enemies.Clear();
+        }
 
         // Audio controls
 
