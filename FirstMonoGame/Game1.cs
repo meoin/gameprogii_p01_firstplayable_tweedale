@@ -18,7 +18,7 @@ public class Game1 : Core
     public static int _defaultHeight = 720;
     public static GameWindow GameWindowInstance;
 
-    public Game1() : base("Dungeon Slime", _defaultWidth, _defaultHeight, false)
+    public Game1() : base("Simon Quest", _defaultWidth, _defaultHeight, false)
     {
 
     }
