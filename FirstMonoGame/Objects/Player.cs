@@ -189,7 +189,7 @@ public class Player : Entity
             charge_timer = 0;
         }
 
-        if (WeaponExtended) speed *= 0.5f;
+        if (WeaponExtended || _charging || _charged) speed *= 0.5f;
         else if (Rolling) speed *= 1.5f;
 
         if (_rollSprite.GetCurrentFrame() >= 5) speed *= 0f;
