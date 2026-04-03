@@ -20,6 +20,7 @@ public class Player : Entity
     public static AnimatedSprite RootRollSprite;
     private const int ROLL_IFRAMES = 5;
     private const float MOVEMENT_SPEED = 300.0f;
+    private const float CHARGE_TIME = 2f;
     private AnimatedSprite _deathSprite;
     private AnimatedSprite _rollSprite;
     public Vector2 FacingDirection;
@@ -29,6 +30,10 @@ public class Player : Entity
     public bool Dead { get; private set; } = false;
     public bool Rolling { get; private set; } = false;
     public bool InIFrames { get; private set; } = false;
+    private bool _charging = false;
+    private float charge_timer = 0;
+    private bool _charged = false;
+    private bool _chargedAttackComplete = false;
     public Weapon Weapon;
     public int Gold;
 
@@ -60,7 +65,38 @@ public class Player : Entity
         else if (_dying)
         {
             _deathSprite.Update(gameTime);
-            if (_deathSprite.OnLastFrame()) Dead = true;
+            if (_deathSprite.OnLastFrame())
+            {
+                _deathSprite.ResetAnimation();
+                Dead = true;
+            } 
+        }
+
+        if (_charging)
+        {
+            charge_timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (charge_timer >= CHARGE_TIME)
+            {
+                _charged = true;
+            }
+        }
+
+        if (_charged && WeaponExtended)
+        {
+            Weapon.SetScale(new Vector2(4, 1));
+            Weapon.SetDamageMultiplier(2);
+            Weapon.SetKnockbackMultiplier(3);
+            _chargedAttackComplete = true;
+        }
+
+        if (_chargedAttackComplete && !WeaponExtended)
+        {
+            Weapon.SetScale(new Vector2(1, 1));
+            Weapon.SetDamageMultiplier(1);
+            Weapon.SetKnockbackMultiplier(1);
+            _chargedAttackComplete = false;
+            _charged = false;
         }
 
         if (Rolling) UpdateRoll(gameTime);
@@ -133,14 +169,24 @@ public class Player : Entity
 
         if (keyboard.WasKeyJustPressed(Keys.Space) && !WeaponExtended && !Rolling)
         {
+            _charging = true;
+        }
+
+        if (keyboard.WasKeyJustReleased(Keys.Space) && !WeaponExtended && !Rolling)
+        {
             WeaponExtended = true;
             Weapon.Sprite.ResetAnimation();
+            _charging = false;
+            charge_timer = 0;
         } 
         
         if (keyboard.WasKeyJustPressed(Keys.LeftShift))
         {
             Rolling = true;
             WeaponExtended = false;
+            _charging = false;
+            _charged = false;
+            charge_timer = 0;
         }
 
         if (WeaponExtended) speed *= 0.5f;

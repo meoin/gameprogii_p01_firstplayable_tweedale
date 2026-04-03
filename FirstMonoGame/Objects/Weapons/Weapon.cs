@@ -16,6 +16,9 @@ public enum Direction
 public class Weapon
 {
     private const int DEFAULT_HIT_FRAMES = 4;
+    private Vector2 _baseScale;
+    private int _baseDamage;
+    private int _baseKnockback;
     public static AnimatedSprite RootSlashSprite;
     public AnimatedSprite Sprite { get; private set; }
     public Rectangle Hitbox { get; private set; }
@@ -33,6 +36,9 @@ public class Weapon
         _rotation = 0f;
         Damage = damage;
         Knockback = knockback;
+        _baseScale = Sprite.Scale;
+        _baseDamage = damage;
+        _baseKnockback = knockback;
     }
 
     public Weapon(Vector2 source, int damage, int knockback)
@@ -43,6 +49,9 @@ public class Weapon
         _rotation = 0f;
         Damage = damage;
         Knockback = knockback;
+        _baseScale = Sprite.Scale;
+        _baseDamage = damage;
+        _baseKnockback = knockback;
     }
 
     public void Update(GameTime gameTime)
@@ -107,5 +116,19 @@ public class Weapon
         }
     }
 
-    
+    public void SetScale(Vector2 scale)
+    {
+        Sprite.Scale = new Vector2(_baseScale.X * scale.X, _baseScale.Y * scale.Y);
+    }
+
+    public void SetDamageMultiplier(int multiplier)
+    {
+        Damage = _baseDamage * multiplier;
+    }
+
+    public void SetKnockbackMultiplier(int multiplier)
+    {
+        Knockback = _baseKnockback * multiplier;
+    }
+
 }
