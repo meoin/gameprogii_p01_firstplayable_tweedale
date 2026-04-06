@@ -7,6 +7,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Content;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using MonoGameGum;
 using Gum.Forms.Controls;
 using MonoGameGum.GueDeriving;
@@ -150,6 +154,9 @@ public class GameplayScene : Scene
         _transitions = new List<RoomTransition>();
         _pickups = new List<Pickup>();
 
+        GetEnemiesFromFile(Content, "images/room-content.xml");
+        _obstacles = _tilemap.GetObstacles();
+
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
         _scoreTextPosition = new Vector2(Core.Bounds.Left, _tilemap.TileHeight * 0.5f);
@@ -196,9 +203,6 @@ public class GameplayScene : Scene
         _tilemapAtlas.Scale = new Vector2(4.0f, 4.0f);
         
         _tilemap = _tilemapAtlas.GetTilemap(_tilemapName);
-
-        // Create the obstacle sprite from the atlas
-        _obstacle = _atlas.CreateSprite("test-obstacle", 4.0f);
 
         _verticalWallSprite = _atlas.CreateSprite("vertical-wall", 4.0f);
         _horizontalWallSprite = _atlas.CreateSprite("horizontal-wall", 4.0f);
@@ -308,7 +312,7 @@ public class GameplayScene : Scene
             }
         }
 
-        if (_player.Dead) Core.ChangeScene(new TitleScene());
+        if (_player.Dead) Core.ChangeScene(_player.LastCheckpoint);
     }
 
     protected Vector2 GetRandomTile()
@@ -365,7 +369,12 @@ public class GameplayScene : Scene
             Core.ToggleFullscreen();
         }
 
-        
+        if (keyboard.WasKeyJustPressed(Keys.R))
+        {
+            SetCheckpoint();
+        }
+
+
         if (keyboard.WasKeyJustPressed(Keys.P))
         {
             _pauseEnemiesForTesting = !_pauseEnemiesForTesting;
@@ -640,5 +649,146 @@ public class GameplayScene : Scene
 
         // Draw the Gum UI
         GumService.Default.Draw();
+    }
+
+    protected void SetCheckpoint()
+    {
+        _player.LastCheckpoint = this;
+    }
+
+    protected void GetEnemiesFromFile(ContentManager content,string fileName)
+    {
+        string filePath = Path.Combine(content.RootDirectory, fileName);
+
+        using (Stream stream = TitleContainer.OpenStream(filePath))
+        {
+            using (XmlReader reader = XmlReader.Create(stream))
+            {
+                XDocument doc = XDocument.Load(reader);
+                XElement root = doc.Root;
+
+                var rooms = root.Element("Rooms")?.Elements("Room");
+
+                if (rooms != null)
+                {
+                    foreach (var room in rooms)
+                    {
+                        string name = room.Attribute("name")?.Value;
+
+                        if (name != _tilemapName) continue;
+
+                        var enemies = room.Element("Enemies")?.Elements();
+
+                        if (enemies != null)
+                        {
+                            foreach (var enemy in enemies)
+                            {
+                                string enemyType = enemy.Name.LocalName;
+                                int health = int.Parse(enemy.Attribute("health")?.Value);
+                                int x = int.Parse(enemy.Attribute("x")?.Value);
+                                int y = int.Parse(enemy.Attribute("y")?.Value);
+
+                                switch (enemyType)
+                                {
+                                    case "Slime":
+                                        _enemies.Add(new Slime(health, GetSpecificTile(x, y), _slimeSprite, _player));
+                                        break;
+                                    case "Bat":
+                                        _enemies.Add(new Bat(health, GetSpecificTile(x, y), _batSprite));
+                                        break;
+                                    case "Spider":
+                                        _enemies.Add(new Spider(health, GetSpecificTile(x, y), _spiderSprite, _player));
+                                        break;
+                                }
+                            }
+                        }
+
+                        var pickups = room.Element("Pickups")?.Elements();
+
+                        if (pickups != null)
+                        {
+                            foreach (var pickup in pickups)
+                            {
+                                string pickupType = pickup.Name.LocalName;
+                                int value = int.Parse(pickup.Attribute("value")?.Value);
+                                int x = int.Parse(pickup.Attribute("x")?.Value);
+                                int y = int.Parse(pickup.Attribute("y")?.Value);
+
+                                switch (pickupType)
+                                {
+                                    case "Gold":
+                                        _pickups.Add(new Gold(GetSpecificTile(x, y), _goldSprite, value));
+                                        break;
+                                    case "Shield":
+                                        _pickups.Add(new Shield(GetSpecificTile(x, y), _shieldSprite, value));
+                                        break;
+                                    case "Heart":
+                                        _pickups.Add(new HeartPickup(GetSpecificTile(x, y), _heartSprite, value));
+                                        break;
+                                }
+                            }
+                        }
+
+                        var transitions = room.Element("Transitions")?.Elements();
+
+                        if (transitions != null)
+                        {
+                            foreach(var transition in transitions)
+                            {
+                                int x = int.Parse(transition.Attribute("x")?.Value);
+                                int y = int.Parse(transition.Attribute("y")?.Value);
+                                int width = int.Parse(transition.Attribute("width")?.Value);
+                                int height = int.Parse(transition.Attribute("height")?.Value);
+                                string destination = transition.Attribute("destination")?.Value;
+                                float destination_x = int.Parse(transition.Attribute("destination-x")?.Value);
+                                float destination_y = int.Parse(transition.Attribute("destination-y")?.Value);
+                                var doors = transition.Elements();
+
+                                if (x == -1) x = _tilemap.Columns - 1;
+                                if (y == -1) y = _tilemap.Rows - 1;
+
+                                if (destination_x == 0) destination_x = _tilemap.TileWidth + 10;
+                                else destination_x = _tilemap.TileWidth * destination_x;
+                                if (destination_y == 0) destination_y = _tilemap.TileHeight + 10;
+                                else destination_y = _tilemap.TileHeight * destination_y;
+
+                                Vector2 transitionDestination = new Vector2(destination_x, destination_y);
+                                List<Obstacle> obstacles = new List<Obstacle>();
+
+                                foreach(var door in doors)
+                                {
+                                    int door_x = int.Parse(door.Attribute("x")?.Value);
+                                    int door_y = int.Parse(door.Attribute("y")?.Value);
+
+                                    if (door_x == -1) door_x = _tilemap.Columns - 1;
+                                    if (door_y == -1) door_y = _tilemap.Rows - 1;
+
+                                    string spriteName = door.Attribute("sprite")?.Value;
+                                    Sprite sprite;
+                                    if (spriteName == "horizontal-wall") sprite = _horizontalWallSprite;
+                                    else sprite = _verticalWallSprite;
+
+                                    Debug.WriteLine($"Added door at: X{door_x} Y{door_y}");
+
+                                    obstacles.Add(new Obstacle(sprite, GetSpecificTile(door_x, door_y)));
+                                }
+
+                                RoomTransition newTransition = new RoomTransition
+                                (
+                                    GetSpecificTile(x, y),
+                                    (int)_tilemap.TileWidth * width,
+                                    (int)_tilemap.TileHeight * height,
+                                    new GameplayScene(destination, _player, transitionDestination),
+                                    transitionDestination,
+                                    obstacles
+                                );
+
+                                _transitions.Add(newTransition);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

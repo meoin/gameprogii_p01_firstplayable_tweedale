@@ -45,30 +45,32 @@ public class StartRoom : GameplayScene
         // LoadContent is called during base.Initialize().
         base.Initialize();
 
-        _enemies = new List<Enemy>();
-        _obstacles = _tilemap.GetObstacles();
-        _transitions = new List<RoomTransition>();
+        //_enemies = new List<Enemy>();
+        
+        //_transitions = new List<RoomTransition>();
 
-        _enemies.Add(new Slime(2, GetSpecificTile(14, 2), _slimeSprite, _player));
+        //GetEnemiesFromFile(Content, "images/room-content.xml");
 
-        Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 10 * _tilemap.TileHeight);
+        //_enemies.Add(new Slime(2, GetSpecificTile(14, 2), _slimeSprite, _player));
+
+        //Vector2 transitionDestination = new Vector2(_tilemap.TileWidth + 10, 10 * _tilemap.TileHeight);
         // Set level transition
-        _transitions.Add
-        (
-            new RoomTransition
-            (
-                GetSpecificTile(_tilemap.Columns - 1, 2),
-                (int)_tilemap.TileWidth,
-                (int)_tilemap.TileHeight * 2,
-                new Room1("room-1", _player, transitionDestination),
-                transitionDestination,
-                new List<Obstacle> 
-                {
-                    new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 2)),
-                    new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 3))
-                }
-            )
-        );
+        // _transitions.Add
+        // (
+        //     new RoomTransition
+        //     (
+        //         GetSpecificTile(_tilemap.Columns - 1, 2),
+        //         (int)_tilemap.TileWidth,
+        //         (int)_tilemap.TileHeight * 2,
+        //         new Room1("room-1", _player, transitionDestination),
+        //         transitionDestination,
+        //         new List<Obstacle> 
+        //         {
+        //             new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 2)),
+        //             new Obstacle(_verticalWallSprite, GetSpecificTile(_tilemap.Columns - 1, 3))
+        //         }
+        //     )
+        // );
 
         // Tutorial info
         Vector2 size = _font.MeasureString(TUTORIAL_TEXT_MOVE);

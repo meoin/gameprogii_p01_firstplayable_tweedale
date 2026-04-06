@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EntityAtlas>
+    <Rooms>
+        <Room name="start-room">
+            <Enemies>
+                <Slime health="2" x="14" y="2"/>
+                <Bat health="1" x="5" y="3"/>
+                <Spider health="1" x="10" y="3"/>
+            </Enemies>
+            <Transitions>
+                <Transition x="-1" y="2" width="1" height="2" destination="room-1" destination-x="0" destination-y="10">
+                    <Wall sprite="vertical-wall" x="-1" y="2"/>
+                    <Wall sprite="veritcal-wall" x="-1" y="3"/>
+                </Transition>
+            </Transitions>
+            <Pickups>
+                <Gold value="25" x="5" y="3"/>
+                <Shield value="1" x="4" y="2"/>
+            </Pickups>
+        </Room>
+    </Rooms>
+</EntityAtlas>

@@ -10,6 +10,7 @@ using GumRuntime;
 using System.Collections.Generic;
 using FirstMonoGame.Objects.Pickups;
 using FirstMonoGame.Objects.Enemies;
+using FirstMonoGame.Scenes;
 
 namespace FirstMonoGame.Objects;
 
@@ -36,6 +37,7 @@ public class Player : Entity
     private bool _chargedAttackComplete = false;
     public Weapon Weapon;
     public int Gold;
+    public GameplayScene LastCheckpoint;
 
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position)
      : base( name, maxHealth, maxShield, startingShield, position, RootWalkSprite)
@@ -85,7 +87,7 @@ public class Player : Entity
         if (_charged && WeaponExtended)
         {
             Weapon.SetScale(new Vector2(4, 1));
-            Weapon.SetDamageMultiplier(2);
+            Weapon.SetDamageMultiplier(1);
             Weapon.SetKnockbackMultiplier(3);
             _chargedAttackComplete = true;
         }

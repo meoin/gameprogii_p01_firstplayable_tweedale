@@ -80,6 +80,8 @@ public class Core : Game
     public static FrameCounter FrameCounter;
     public static bool ShowFPS;
 
+    public static Scene Checkpoint;
+
     /// <summary>
     /// Creates a new Core instance.
     /// </summary>

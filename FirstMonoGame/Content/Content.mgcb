@@ -105,6 +105,9 @@
 /processorParam:TextureFormat=Color
 /build:images/logo.png
 
+#begin images/room-content.xml
+/copy:images/room-content.xml
+
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
 

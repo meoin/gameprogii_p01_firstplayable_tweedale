@@ -215,3 +215,4 @@ C:\Users\hubu9\Documents\_NSCC\_GameProgII\GameProgII_P01_FirstPlayable_Tweedale
 C:\Users\hubu9\Documents\_NSCC\_GameProgII\GameProgII_P01_FirstPlayable_Tweedale\FirstMonoGame\obj\Debug\net9.0\ref\FirstMonoGame.dll
 C:\Users\hubu9\Documents\_NSCC\_GameProgII\GameProgII_P01_FirstPlayable_Tweedale\FirstMonoGame\bin\Debug\net9.0\Content\images\dungeon_tiles.xnb
 C:\Users\Michael\Documents\_NSCC\GameProgII\GameProgII_P01_FirstPlayable_Tweedale\FirstMonoGame\bin\Debug\net9.0\Content\images\dungeon_tiles.xnb
+C:\Users\hubu9\Documents\_NSCC\_GameProgII\GameProgII_P01_FirstPlayable_Tweedale\FirstMonoGame\bin\Debug\net9.0\Content\images\room-content.xml
