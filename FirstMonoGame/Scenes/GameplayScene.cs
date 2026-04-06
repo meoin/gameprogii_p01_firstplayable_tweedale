@@ -662,7 +662,9 @@ public class GameplayScene : Scene
 
         using (Stream stream = TitleContainer.OpenStream(filePath))
         {
-            using (XmlReader reader = XmlReader.Create(stream))
+            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Parse };
+
+            using (XmlReader reader = XmlReader.Create(stream, settings))
             {
                 XDocument doc = XDocument.Load(reader);
                 XElement root = doc.Root;
@@ -773,12 +775,17 @@ public class GameplayScene : Scene
                                     obstacles.Add(new Obstacle(sprite, GetSpecificTile(door_x, door_y)));
                                 }
 
+                                Scene destinationScene;
+
+                                if (destination == "victory-screen") destinationScene = new VictoryScene(_player);
+                                else destinationScene = new GameplayScene(destination, _player, transitionDestination);
+
                                 RoomTransition newTransition = new RoomTransition
                                 (
                                     GetSpecificTile(x, y),
                                     (int)_tilemap.TileWidth * width,
                                     (int)_tilemap.TileHeight * height,
-                                    new GameplayScene(destination, _player, transitionDestination),
+                                    destinationScene,
                                     transitionDestination,
                                     obstacles
                                 );

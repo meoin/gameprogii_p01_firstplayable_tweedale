@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE EntityAtlas [
+  <!ENTITY spider_health "2">
+  <!ENTITY slime_health "3">
+  <!ENTITY bat_health "1">
+]>
 <EntityAtlas>
     <Rooms>
         <Room name="start-room">
             <Enemies>
-                <Slime health="2" x="14" y="2"/>
-                <Bat health="1" x="5" y="3"/>
-                <Spider health="1" x="10" y="3"/>
+                <Slime health="&slime_health;" x="14" y="2"/>
             </Enemies>
             <Transitions>
                 <Transition x="-1" y="2" width="1" height="2" destination="room-1" destination-x="0" destination-y="10">
@@ -13,10 +16,91 @@
                     <Wall sprite="veritcal-wall" x="-1" y="3"/>
                 </Transition>
             </Transitions>
+        </Room>
+        <Room name="room-1">
+            <Enemies>
+                <Slime health="&slime_health;" x="8" y="10"/>
+                <Slime health="&slime_health;" x="2" y="7"/>
+                <Slime health="&slime_health;" x="6" y="6"/>
+                <Slime health="&slime_health;" x="13" y="10"/>
+                <Spider health="&spider_health;" x="16" y="9"/>
+                <Spider health="&spider_health;" x="3" y="2"/>
+                <Spider health="&spider_health;" x="11" y="2"/>
+                <Bat health="&bat_health;" x="15" y="4"/>
+                <Bat health="&bat_health;" x="8" y="7"/>
+            </Enemies>
+            <Transitions>
+                <Transition x="-1" y="5" width="1" height="2" destination="room-2" destination-x="0" destination-y="4">
+                    <Wall sprite="vertical-wall" x="-1" y="5"/>
+                    <Wall sprite="veritcal-wall" x="-1" y="6"/>
+                </Transition>
+            </Transitions>
             <Pickups>
-                <Gold value="25" x="5" y="3"/>
-                <Shield value="1" x="4" y="2"/>
+                <Shield value="1" x="15" y="10"/>
             </Pickups>
+        </Room>
+        <Room name="room-2">
+            <Enemies>
+                <Spider health="&spider_health;" x="12" y="2"/>
+                <Spider health="&spider_health;" x="8" y="7"/>
+                <Spider health="&spider_health;" x="15" y="4"/>
+                <Spider health="&spider_health;" x="1" y="1"/>
+                <Spider health="&spider_health;" x="8" y="5"/>
+            </Enemies>
+            <Transitions>
+                <Transition x="-1" y="4" width="1" height="2" destination="room-3" destination-x="0" destination-y="26">
+                    <Wall sprite="vertical-wall" x="-1" y="4"/>
+                    <Wall sprite="veritcal-wall" x="-1" y="5"/>
+                </Transition>
+            </Transitions>
+        </Room>
+        <Room name="room-3">
+            <Enemies>
+                <Spider health="&spider_health;" x="4" y="2"/>
+                <Spider health="&spider_health;" x="11" y="3"/>
+                <Spider health="&spider_health;" x="19" y="2"/>
+                <Spider health="&spider_health;" x="1" y="8"/>
+                <Spider health="&spider_health;" x="4" y="15"/>
+                <Spider health="&spider_health;" x="8" y="13"/>
+                <Spider health="&spider_health;" x="17" y="14"/>
+                <Spider health="&spider_health;" x="21" y="11"/>
+                <Spider health="&spider_health;" x="21" y="26"/>
+                <Spider health="&spider_health;" x="11" y="26"/>
+                <Spider health="&spider_health;" x="2" y="21"/>
+                <Spider health="&spider_health;" x="11" y="21"/>
+                <Spider health="&spider_health;" x="17" y="21"/>
+            </Enemies>
+            <Transitions>
+                <Transition x="-1" y="2" width="1" height="2" destination="spider-hallway" destination-x="0" destination-y="2">
+                    <Wall sprite="vertical-wall" x="-1" y="2"/>
+                    <Wall sprite="veritcal-wall" x="-1" y="3"/>
+                </Transition>
+            </Transitions>
+            <Pickups>
+                <Shield value="1" x="14" y="10"/>
+                <Shield value="1" x="22" y="7"/>
+                <Shield value="1" x="20" y="7"/>
+                <Gold value="30" x="5" y="10"/>
+                <Gold value="30" x="17" y="10"/>
+            </Pickups>
+        </Room>
+        <Room name="spider-hallway">
+            <Enemies>
+                <Spider health="&spider_health;" x="8" y="3"/>
+                <Spider health="&spider_health;" x="13" y="4"/>
+                <Spider health="&spider_health;" x="15" y="2"/>
+                <Spider health="&spider_health;" x="20" y="3"/>
+                <Spider health="&spider_health;" x="25" y="4"/>
+                <Spider health="&spider_health;" x="29" y="2"/>
+                <Spider health="&spider_health;" x="33" y="4"/>
+                <Spider health="&spider_health;" x="36" y="3"/>
+            </Enemies>
+            <Transitions>
+                <Transition x="-1" y="2" width="1" height="2" destination="victory-screen" destination-x="0" destination-y="0">
+                    <Wall sprite="vertical-wall" x="-1" y="2"/>
+                    <Wall sprite="veritcal-wall" x="-1" y="3"/>
+                </Transition>
+            </Transitions>
         </Room>
     </Rooms>
 </EntityAtlas>
