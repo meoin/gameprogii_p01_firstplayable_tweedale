@@ -113,6 +113,13 @@ public class GameplayScene : Scene
         _playerPosition = playerPosition;
     }
 
+    public GameplayScene(string tilemapName, Player player)
+    {
+        _tilemapName = tilemapName;
+        _player = player;
+        _playerPosition = Vector2.Zero;
+    }
+
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -140,21 +147,17 @@ public class GameplayScene : Scene
             (int)_tilemap.TileHeight * _tilemap.Rows
         );
 
-        // Initial slime position will be the center tile of the tile map.
-        int centerRow = _tilemap.Rows / 2;
-        int centerColumn = _tilemap.Columns / 2;
-        Vector2 gameStartPosition = GetSpecificTile(2, 3);
-
         // Initialize the player
-        _player ??= new Player(5, gameStartPosition);
-        if(_playerPosition != Vector2.Zero) _player.SetPosition(_playerPosition);
+        _player ??= new Player(5, GetRoomRespawnPoint(Content, "images/room-content.xml"));
+        if(_playerPosition == Vector2.Zero) _player.SetPosition(GetRoomRespawnPoint(Content, "images/room-content.xml"));
+        else _player.SetPosition(_playerPosition);
 
         _enemies = new List<Enemy>();
         _obstacles = new List<Obstacle>();
         _transitions = new List<RoomTransition>();
         _pickups = new List<Pickup>();
 
-        GetEnemiesFromFile(Content, "images/room-content.xml");
+        GetRoomContentFromFile(Content, "images/room-content.xml");
         _obstacles = _tilemap.GetObstacles();
 
         // Set the position of the score text to align to the left edge of the
@@ -312,7 +315,11 @@ public class GameplayScene : Scene
             }
         }
 
-        if (_player.Dead) Core.ChangeScene(_player.LastCheckpoint);
+        if (_player.Dead)
+        {
+            _player.Revive();
+            Core.ChangeScene(new GameplayScene(_player.LastCheckpoint, _player));
+        } 
     }
 
     protected Vector2 GetRandomTile()
@@ -653,10 +660,45 @@ public class GameplayScene : Scene
 
     protected void SetCheckpoint()
     {
-        _player.LastCheckpoint = this;
+        _player.LastCheckpoint = _tilemapName;
     }
 
-    protected void GetEnemiesFromFile(ContentManager content,string fileName)
+    protected Vector2 GetRoomRespawnPoint(ContentManager content, string fileName)
+    {
+        string filePath = Path.Combine(content.RootDirectory, fileName);
+
+        using (Stream stream = TitleContainer.OpenStream(filePath))
+        {
+            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Parse };
+
+            using (XmlReader reader = XmlReader.Create(stream, settings))
+            {
+                XDocument doc = XDocument.Load(reader);
+                XElement root = doc.Root;
+
+                var rooms = root.Element("Rooms")?.Elements("Room");
+
+                if (rooms != null)
+                {
+                    foreach (var room in rooms)
+                    {
+                        string name = room.Attribute("name")?.Value;
+
+                        if (name != _tilemapName) continue;
+
+                        int spawn_x = int.Parse(room.Attribute("spawn-x")?.Value);
+                        int spawn_y = int.Parse(room.Attribute("spawn-y")?.Value);
+
+                        return GetSpecificTile(spawn_x, spawn_y);
+                    }
+                }
+            }
+        }
+
+        return GetSpecificTile(1, 1);
+    }
+
+    protected void GetRoomContentFromFile(ContentManager content,string fileName)
     {
         string filePath = Path.Combine(content.RootDirectory, fileName);
 

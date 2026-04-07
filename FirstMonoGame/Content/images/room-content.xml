@@ -6,7 +6,7 @@
 ]>
 <EntityAtlas>
     <Rooms>
-        <Room name="start-room">
+        <Room name="start-room" spawn-x="2" spawn-y="3">
             <Enemies>
                 <Slime health="&slime_health;" x="14" y="2"/>
             </Enemies>
@@ -17,7 +17,7 @@
                 </Transition>
             </Transitions>
         </Room>
-        <Room name="room-1">
+        <Room name="room-1" spawn-x="1" spawn-y="10">
             <Enemies>
                 <Slime health="&slime_health;" x="8" y="10"/>
                 <Slime health="&slime_health;" x="2" y="7"/>
@@ -39,7 +39,7 @@
                 <Shield value="1" x="15" y="10"/>
             </Pickups>
         </Room>
-        <Room name="room-2">
+        <Room name="room-2" spawn-x="1" spawn-y="4">
             <Enemies>
                 <Spider health="&spider_health;" x="12" y="2"/>
                 <Spider health="&spider_health;" x="8" y="7"/>
@@ -54,7 +54,7 @@
                 </Transition>
             </Transitions>
         </Room>
-        <Room name="room-3">
+        <Room name="room-3" spawn-x="1" spawn-y="26">
             <Enemies>
                 <Spider health="&spider_health;" x="4" y="2"/>
                 <Spider health="&spider_health;" x="11" y="3"/>
@@ -84,7 +84,7 @@
                 <Gold value="30" x="17" y="10"/>
             </Pickups>
         </Room>
-        <Room name="spider-hallway">
+        <Room name="spider-hallway" spawn-x="1" spawn-y="2">
             <Enemies>
                 <Spider health="&spider_health;" x="8" y="3"/>
                 <Spider health="&spider_health;" x="13" y="4"/>

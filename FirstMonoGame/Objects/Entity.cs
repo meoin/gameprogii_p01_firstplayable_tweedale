@@ -16,7 +16,7 @@ public class Entity
     private const int DEFAULT_KNOCKBACK = 1;
     private const float HURT_INVINCIBILITY_SECONDS = 1.5f;
     public bool InvincibleAfterBeingHurt = false;
-    private float _hurtInvincibilityTimer = 0f;
+    protected float _hurtInvincibilityTimer = 0f;
     protected float _speedMultiplier = 1f;
     private float _floorDamageTimerMax = 5f;
     private float _floorDamageTimer = 0f;

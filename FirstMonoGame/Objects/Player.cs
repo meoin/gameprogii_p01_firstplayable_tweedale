@@ -37,7 +37,7 @@ public class Player : Entity
     private bool _chargedAttackComplete = false;
     public Weapon Weapon;
     public int Gold;
-    public GameplayScene LastCheckpoint;
+    public string LastCheckpoint;
 
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position)
      : base( name, maxHealth, maxShield, startingShield, position, RootWalkSprite)
@@ -67,7 +67,7 @@ public class Player : Entity
         else if (_dying)
         {
             _deathSprite.Update(gameTime);
-            if (_deathSprite.OnLastFrame())
+            if (_deathSprite.OnLastFrame() && !Dead)
             {
                 _deathSprite.ResetAnimation();
                 Dead = true;
@@ -344,5 +344,15 @@ public class Player : Entity
         }
 
         return hit;
+    }
+
+    public void Revive()
+    {
+        Gold = (int)Math.Round(Gold / 20.0) * 10;
+        InvincibleAfterBeingHurt = false;
+        _hurtInvincibilityTimer = 0f;
+        Health.Heal(Health.MaxHealth);
+        _dying = false;
+        Dead = false;
     }
 }

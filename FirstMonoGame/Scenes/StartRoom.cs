@@ -45,6 +45,8 @@ public class StartRoom : GameplayScene
         // LoadContent is called during base.Initialize().
         base.Initialize();
 
+        SetCheckpoint();
+
         // Tutorial info
         Vector2 size = _font.MeasureString(TUTORIAL_TEXT_MOVE);
         _tutorialMovePos = new Vector2(TUTORIAL_X_POS, TUTORIAL_Y_POS);
