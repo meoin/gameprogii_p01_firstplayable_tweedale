@@ -21,10 +21,11 @@ public class Player : Entity
     public static AnimatedSprite RootRollSprite;
     private const int ROLL_IFRAMES = 5;
     private const float MOVEMENT_SPEED = 300.0f;
-    private const float CHARGE_TIME = 2f;
+    private const float CHARGE_TIME = 1.5f;
     private AnimatedSprite _deathSprite;
     private AnimatedSprite _rollSprite;
-    public Vector2 FacingDirection;
+    public Vector2 WeaponOffset;
+    private Direction FacingDirection;
     private bool _facingLeft = false;
     public bool WeaponExtended { get; private set; } = false;
     private bool _dying = false;
@@ -38,6 +39,7 @@ public class Player : Entity
     public Weapon Weapon;
     public int Gold;
     public string LastCheckpoint;
+    public bool PlayChargeSound = false;
 
     public Player(string name, int maxHealth, int maxShield, int startingShield, Vector2 position)
      : base( name, maxHealth, maxShield, startingShield, position, RootWalkSprite)
@@ -45,9 +47,9 @@ public class Player : Entity
         Weapon = new Weapon(Position, 1, 2);
         _deathSprite = RootDeathSprite;
         _rollSprite = RootRollSprite;
-        FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
+        WeaponOffset = new Vector2(Sprite.Width * 0.5f, 0);
 
-        Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
+        Weapon.SetDirection(GetCenter() + WeaponOffset, Direction.Right);
     }
 
     public Player(int maxHealth, Vector2 position) : base("Player", maxHealth, DEFAULT_MAX_SHIELD, 0, position, RootWalkSprite)
@@ -55,9 +57,9 @@ public class Player : Entity
         Weapon = new Weapon(Position, 1, 2);
         _deathSprite = RootDeathSprite;
         _rollSprite = RootRollSprite;
-        FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
+        WeaponOffset = new Vector2(Sprite.Width * 0.5f, 0);
 
-        Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
+        Weapon.SetDirection(GetCenter() + WeaponOffset, Direction.Right);
     }
 
     public override void Update(GameTime gameTime, Rectangle roomBounds)
@@ -80,7 +82,10 @@ public class Player : Entity
 
             if (charge_timer >= CHARGE_TIME)
             {
+                if (!_charged) PlayChargeSound = true;
+
                 _charged = true;
+                
             }
         }
 
@@ -103,7 +108,11 @@ public class Player : Entity
 
         if (Rolling) UpdateRoll(gameTime);
 
-        if (WeaponExtended) Weapon.Update(gameTime);
+        if (WeaponExtended)
+        {
+            Weapon.SetDirection(GetCenter() + WeaponOffset, FacingDirection);
+            Weapon.Update(gameTime);
+        } 
         if (WeaponExtended && Weapon.Sprite.OnLastFrame()) WeaponExtended = false;
 
         base.Update(gameTime, roomBounds);
@@ -199,37 +208,44 @@ public class Player : Entity
         if (keyboard.IsKeyDown(Keys.W) || keyboard.IsKeyDown(Keys.Up))
         {
             movementVector.Y -= speed;
-            FacingDirection = new Vector2(0, Sprite.Height * -0.5f);
-
-            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Up);
+            if (!WeaponExtended)
+            {
+                WeaponOffset = new Vector2(0, Sprite.Height * -0.5f);
+                FacingDirection = Direction.Up;
+            }
+            
         }
 
         if (keyboard.IsKeyDown(Keys.S) || keyboard.IsKeyDown(Keys.Down))
         {
             movementVector.Y += speed;
-            FacingDirection = new Vector2(0, Sprite.Height * 0.5f);
-
-            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Down);
+            if (!WeaponExtended)
+            {
+                WeaponOffset = new Vector2(0, Sprite.Height * 0.5f);
+                FacingDirection = Direction.Down;
+            }
         }
 
         if (keyboard.IsKeyDown(Keys.A) || keyboard.IsKeyDown(Keys.Left))
         {
             movementVector.X -= speed;
-            FacingDirection = new Vector2(Sprite.Width * -0.5f, 0);
-
-            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Left);
-
-            _facingLeft = true;
+            if (!WeaponExtended)
+            {
+                WeaponOffset = new Vector2(Sprite.Width * -0.5f, 0);
+                FacingDirection = Direction.Left;
+                _facingLeft = true;
+            }
         }
 
         if (keyboard.IsKeyDown(Keys.D) || keyboard.IsKeyDown(Keys.Right))
         {
             movementVector.X += speed;
-            FacingDirection = new Vector2(Sprite.Width * 0.5f, 0);
-
-            Weapon.SetDirection(GetCenter() + FacingDirection, Direction.Right);
-
-            _facingLeft = false;
+            if (!WeaponExtended)
+            {
+                WeaponOffset = new Vector2(Sprite.Width * 0.5f, 0);
+                FacingDirection = Direction.Right;
+                _facingLeft = false;
+            }
         }
 
         // Ensuring that movement vector is always normalized

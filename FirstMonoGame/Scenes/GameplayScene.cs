@@ -310,6 +310,12 @@ public class GameplayScene : Scene
             }
         }
 
+        if (_player.PlayChargeSound)
+        {
+            _player.PlayChargeSound = false;
+            Core.Audio.PlaySoundEffect(_collectSoundEffect);
+        }
+
         foreach (Pickup pickup in _pickups)
         {
             if (_player.CheckPickupInteraction(pickup)) Core.Audio.PlaySoundEffect(_collectSoundEffect);
