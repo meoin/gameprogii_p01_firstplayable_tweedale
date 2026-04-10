@@ -46,8 +46,14 @@
         <Region name="heart-container-empty" x="400" y="80" width="20" height="20" />
         <Region name="heart-container-full" x="420" y="80" width="20" height="20" />
         <Region name="shield-container" x="440" y="80" width="20" height="20" />
+        <Region name="campfire-1" x="400" y="100" width="20" height="20" />
+        <Region name="campfire-2" x="420" y="100" width="20" height="20" />
     </Regions>
     <Animations>
+        <Animation name="campfire-animation" delay="300">
+            <Frame region="campfire-1" />
+            <Frame region="campfire-2" />
+        </Animation>
         <Animation name="slime-animation" delay="200">
             <Frame region="slime-1" />
             <Frame region="slime-2" />

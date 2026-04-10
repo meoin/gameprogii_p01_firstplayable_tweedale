@@ -10,14 +10,20 @@ internal class FollowPlayerMoveStrategy : IMoveStrategy
 {
     private Player _player;
     private Entity _entity;
-    public FollowPlayerMoveStrategy(Player player, Entity entity)
+    private float _range;
+    public FollowPlayerMoveStrategy(Player player, Entity entity, float range)
     {
         _player = player;
         _entity = entity;
+        _range = range;
     }
 
     public Vector2 Move(Vector2 position, float speed, Rectangle roomBounds, GameTime gameTime)
     {
+        float dist = Vector2.Distance(position, _player.Position);
+
+        if (dist > _range) return position;
+
         Vector2 movementDirection = _player.Position - position;
 
         if (movementDirection != Vector2.Zero)

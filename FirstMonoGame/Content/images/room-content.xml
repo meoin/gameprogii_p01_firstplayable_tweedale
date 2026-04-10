@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE EntityAtlas [
-  <!ENTITY spider_health "2">
+  <!ENTITY spider_health "3">
   <!ENTITY slime_health "3">
   <!ENTITY bat_health "1">
 ]>
 <EntityAtlas>
     <Rooms>
-        <Room name="start-room" spawn-x="2" spawn-y="3">
+        <Room name="start-room" spawn-x="4" spawn-y="3">
             <Enemies>
-                <Slime health="&slime_health;" x="14" y="2"/>
+                <Slime health="&slime_health;" x="14" y="3"/>
             </Enemies>
             <Transitions>
                 <Transition x="-1" y="2" width="1" height="2" destination="room-1" destination-x="0" destination-y="10">
@@ -16,6 +16,9 @@
                     <Wall sprite="veritcal-wall" x="-1" y="3"/>
                 </Transition>
             </Transitions>
+            <Campfires>
+                <Campfire x="2" y="3" />
+            </Campfires>
         </Room>
         <Room name="room-1" spawn-x="1" spawn-y="10">
             <Enemies>
@@ -48,15 +51,26 @@
                 <Spider health="&spider_health;" x="8" y="5"/>
             </Enemies>
             <Transitions>
-                <Transition x="-1" y="4" width="1" height="2" destination="room-3" destination-x="0" destination-y="26">
+                <Transition x="-1" y="4" width="1" height="2" destination="campfire-room" destination-x="0" destination-y="4">
                     <Wall sprite="vertical-wall" x="-1" y="4"/>
                     <Wall sprite="veritcal-wall" x="-1" y="5"/>
                 </Transition>
             </Transitions>
         </Room>
+        <Room name="campfire-room" spawn-x="1" spawn-y="4">
+            <Transitions>
+                <Transition x="-1" y="3" width="1" height="2" destination="room-3" destination-x="0" destination-y="26">
+                    <Wall sprite="vertical-wall" x="-1" y="3"/>
+                    <Wall sprite="veritcal-wall" x="-1" y="4"/>
+                </Transition>
+            </Transitions>
+            <Campfires>
+                <Campfire x="4" y="4" />
+            </Campfires>
+        </Room>
         <Room name="room-3" spawn-x="1" spawn-y="26">
             <Enemies>
-                <Spider health="&spider_health;" x="4" y="2"/>
+                <Slime health="&spider_health;" x="4" y="2"/>
                 <Spider health="&spider_health;" x="11" y="3"/>
                 <Spider health="&spider_health;" x="19" y="2"/>
                 <Spider health="&spider_health;" x="1" y="8"/>
@@ -66,9 +80,9 @@
                 <Spider health="&spider_health;" x="21" y="11"/>
                 <Spider health="&spider_health;" x="21" y="26"/>
                 <Spider health="&spider_health;" x="11" y="26"/>
-                <Spider health="&spider_health;" x="2" y="21"/>
-                <Spider health="&spider_health;" x="11" y="21"/>
-                <Spider health="&spider_health;" x="17" y="21"/>
+                <Slime health="&spider_health;" x="2" y="21"/>
+                <Slime health="&spider_health;" x="11" y="21"/>
+                <Slime health="&spider_health;" x="17" y="21"/>
             </Enemies>
             <Transitions>
                 <Transition x="-1" y="2" width="1" height="2" destination="spider-hallway" destination-x="0" destination-y="2">

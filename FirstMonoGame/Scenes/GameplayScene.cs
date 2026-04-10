@@ -58,6 +58,7 @@ public class GameplayScene : Scene
     protected Sprite _heartContainerEmpty;
     protected Sprite _heartContainerFull;
     protected Sprite _shieldContainer;
+    protected AnimatedSprite _campfireSprite;
 
     #endregion
 
@@ -90,7 +91,7 @@ public class GameplayScene : Scene
     protected Player _player;
     protected List<Enemy> _enemies;
     protected List<Obstacle> _obstacles;
-    protected List<Vector2> _slimeSpawns;
+    protected List<Campfire> _campfires;
     protected List<RoomTransition> _transitions;
     protected List<Pickup> _pickups;
     protected FollowCamera _camera;
@@ -156,9 +157,17 @@ public class GameplayScene : Scene
         _obstacles = new List<Obstacle>();
         _transitions = new List<RoomTransition>();
         _pickups = new List<Pickup>();
+        _campfires = new List<Campfire>();
 
         GetRoomContentFromFile(Content, "images/room-content.xml");
         _obstacles = _tilemap.GetObstacles();
+
+        foreach(Campfire campfire in _campfires)
+        {
+            _obstacles.Add(campfire);
+        }
+
+        if (_campfires.Count > 0) SetCheckpoint();
 
         // Set the position of the score text to align to the left edge of the
         // room bounds, and to vertically be at the center of the first tile.
@@ -229,6 +238,8 @@ public class GameplayScene : Scene
         _goldSprite = _atlas.CreateSprite("gold-1", 3.0f);
         _heartSprite = _atlas.CreateSprite("heart-1", 3.0f);
         _shieldSprite = _atlas.CreateSprite("cross-1", 3.0f);
+
+        _campfireSprite = _atlas.CreateAnimatedSprite("campfire-animation", 4.0f);
     }
 
     public override void Update(GameTime gameTime)
@@ -260,6 +271,11 @@ public class GameplayScene : Scene
         CheckKeyboardInput();
         CheckGamepadInput();
         _player.Update(gameTime, _roomBounds);
+
+        foreach(Campfire campfire in _campfires)
+        {
+            campfire.Update(gameTime, _roomBounds);
+        }
 
         foreach(RoomTransition transition in _transitions)
         {
@@ -553,6 +569,11 @@ public class GameplayScene : Scene
             enemy.Draw();
         }
 
+        foreach (Campfire campfire in _campfires)
+        {
+            campfire.Draw();
+        }
+
 
         if (_showHitboxes)
         {
@@ -770,6 +791,19 @@ public class GameplayScene : Scene
                                         _pickups.Add(new HeartPickup(GetSpecificTile(x, y), _heartSprite, value));
                                         break;
                                 }
+                            }
+                        }
+
+                        var campfires = room.Element("Campfires")?.Elements();
+
+                        if (campfires != null)
+                        {
+                            foreach (var campfire in campfires)
+                            {
+                                int x = int.Parse(campfire.Attribute("x")?.Value);
+                                int y = int.Parse(campfire.Attribute("y")?.Value);
+
+                                _campfires.Add(new Campfire(_campfireSprite, GetSpecificTile(x, y), _player));
                             }
                         }
 

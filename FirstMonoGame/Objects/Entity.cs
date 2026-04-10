@@ -250,7 +250,7 @@ public class Entity
             // If entity is colliding with the obstacle, revert them to their previous position
             if (!Bounds.Intersects(obstacle.Bounds)) continue;
 
-            if (obstacle is Wall)
+            if (obstacle is Wall || obstacle is Campfire)
             {
                 BlockMovement(obstacle.Bounds, roomBounds);
             }
