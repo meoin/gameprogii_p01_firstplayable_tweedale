@@ -14,16 +14,14 @@ public class RoomTransition
     public Vector2 Position { get; private set; }
     public Rectangle Bounds { get; private set; }
     public Scene DestinationScene { get; private set; }
-    public Vector2 DestinationPosition { get; private set; }
     public bool Open;
     public List<Obstacle> Walls;
 
-    public RoomTransition(Vector2 position, int width, int height, Scene destScene, Vector2 destPosition, List<Obstacle> walls)
+    public RoomTransition(Vector2 position, int width, int height, Scene destScene, List<Obstacle> walls)
     {
         Position = position;
         Bounds = new Rectangle((int)position.X - 10, (int)position.Y - 10, width + 20, height + 20);
         DestinationScene = destScene;
-        DestinationPosition = destPosition;
         Walls = walls;
     }
 

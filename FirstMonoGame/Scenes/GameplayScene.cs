@@ -99,6 +99,7 @@ public class GameplayScene : Scene
     protected bool _roomComplete = false;
     protected bool _showHitboxes = false;
     protected bool _pauseEnemiesForTesting = false;
+    protected bool _debugEnabled = false;
     
     #endregion
 
@@ -149,9 +150,8 @@ public class GameplayScene : Scene
         );
 
         // Initialize the player
-        _player ??= new Player(5, GetRoomRespawnPoint(Content, "images/room-content.xml"));
-        if(_playerPosition == Vector2.Zero) _player.SetPosition(GetRoomRespawnPoint(Content, "images/room-content.xml"));
-        else _player.SetPosition(_playerPosition);
+        _player ??= new Player(5, new Vector2(0, 0));
+        _player.SetPosition(GetRoomRespawnPoint(Content, "images/room-content.xml"));
 
         _enemies = new List<Enemy>();
         _obstacles = new List<Obstacle>();
@@ -398,26 +398,31 @@ public class GameplayScene : Scene
             Core.ToggleFullscreen();
         }
 
-        if (keyboard.WasKeyJustPressed(Keys.R))
+        // Testing buttons:
+        
+        if (_debugEnabled)
         {
-            SetCheckpoint();
-        }
+            if (keyboard.WasKeyJustPressed(Keys.R))
+            {
+                SetCheckpoint();
+            }
 
+            if (keyboard.WasKeyJustPressed(Keys.P))
+            {
+                _pauseEnemiesForTesting = !_pauseEnemiesForTesting;
+            }
 
-        if (keyboard.WasKeyJustPressed(Keys.P))
-        {
-            _pauseEnemiesForTesting = !_pauseEnemiesForTesting;
-        }
+            if (keyboard.WasKeyJustPressed(Keys.T))
+            {
+                _showHitboxes = !_showHitboxes;
+            }
 
-        if (keyboard.WasKeyJustPressed(Keys.T))
-        {
-            _showHitboxes = !_showHitboxes;
+            if (keyboard.WasKeyJustPressed(Keys.D0))
+            {
+                _enemies.Clear();
+            }
         }
-
-        if (keyboard.WasKeyJustPressed(Keys.D0))
-        {
-            _enemies.Clear();
-        }
+        
 
         // Audio controls
 
@@ -713,10 +718,17 @@ public class GameplayScene : Scene
 
                         if (name != _tilemapName) continue;
 
-                        int spawn_x = int.Parse(room.Attribute("spawn-x")?.Value);
-                        int spawn_y = int.Parse(room.Attribute("spawn-y")?.Value);
+                        float spawn_x = int.Parse(room.Attribute("spawn-x")?.Value);
+                        float spawn_y = int.Parse(room.Attribute("spawn-y")?.Value);
 
-                        return GetSpecificTile(spawn_x, spawn_y);
+                        if (spawn_x == 0) spawn_x = _tilemap.TileWidth + 10;
+                        else spawn_x = _tilemap.TileWidth * spawn_x;
+                        if (spawn_y == 0) spawn_y = _tilemap.TileHeight + 10;
+                        else spawn_y = _tilemap.TileHeight * spawn_y;
+
+                        Vector2 spawnPoint = new Vector2(spawn_x, spawn_y);
+
+                        return spawnPoint;
                     }
                 }
             }
@@ -824,19 +836,11 @@ public class GameplayScene : Scene
                                 int width = int.Parse(transition.Attribute("width")?.Value);
                                 int height = int.Parse(transition.Attribute("height")?.Value);
                                 string destination = transition.Attribute("destination")?.Value;
-                                float destination_x = int.Parse(transition.Attribute("destination-x")?.Value);
-                                float destination_y = int.Parse(transition.Attribute("destination-y")?.Value);
                                 var doors = transition.Elements();
 
                                 if (x == -1) x = _tilemap.Columns - 1;
                                 if (y == -1) y = _tilemap.Rows - 1;
 
-                                if (destination_x == 0) destination_x = _tilemap.TileWidth + 10;
-                                else destination_x = _tilemap.TileWidth * destination_x;
-                                if (destination_y == 0) destination_y = _tilemap.TileHeight + 10;
-                                else destination_y = _tilemap.TileHeight * destination_y;
-
-                                Vector2 transitionDestination = new Vector2(destination_x, destination_y);
                                 List<Obstacle> obstacles = new List<Obstacle>();
 
                                 foreach(var door in doors)
@@ -860,7 +864,7 @@ public class GameplayScene : Scene
                                 Scene destinationScene;
 
                                 if (destination == "victory-screen") destinationScene = new VictoryScene(_player);
-                                else destinationScene = new GameplayScene(destination, _player, transitionDestination);
+                                else destinationScene = new GameplayScene(destination, _player);
 
                                 RoomTransition newTransition = new RoomTransition
                                 (
@@ -868,7 +872,6 @@ public class GameplayScene : Scene
                                     (int)_tilemap.TileWidth * width,
                                     (int)_tilemap.TileHeight * height,
                                     destinationScene,
-                                    transitionDestination,
                                     obstacles
                                 );
 

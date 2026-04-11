@@ -11,7 +11,7 @@
                 <Slime health="&slime_health;" x="14" y="3"/>
             </Enemies>
             <Transitions>
-                <Transition x="-1" y="2" width="1" height="2" destination="room-1" destination-x="0" destination-y="10">
+                <Transition x="-1" y="2" width="1" height="2" destination="room-1">
                     <Wall sprite="vertical-wall" x="-1" y="2"/>
                     <Wall sprite="veritcal-wall" x="-1" y="3"/>
                 </Transition>
@@ -33,7 +33,7 @@
                 <Bat health="&bat_health;" x="8" y="7"/>
             </Enemies>
             <Transitions>
-                <Transition x="-1" y="5" width="1" height="2" destination="room-2" destination-x="0" destination-y="4">
+                <Transition x="-1" y="5" width="1" height="2" destination="room-3">
                     <Wall sprite="vertical-wall" x="-1" y="5"/>
                     <Wall sprite="veritcal-wall" x="-1" y="6"/>
                 </Transition>
@@ -51,7 +51,7 @@
                 <Spider health="&spider_health;" x="8" y="5"/>
             </Enemies>
             <Transitions>
-                <Transition x="-1" y="4" width="1" height="2" destination="campfire-room" destination-x="0" destination-y="4">
+                <Transition x="-1" y="4" width="1" height="2" destination="spider-hallway">
                     <Wall sprite="vertical-wall" x="-1" y="4"/>
                     <Wall sprite="veritcal-wall" x="-1" y="5"/>
                 </Transition>
@@ -59,7 +59,7 @@
         </Room>
         <Room name="campfire-room" spawn-x="1" spawn-y="4">
             <Transitions>
-                <Transition x="-1" y="3" width="1" height="2" destination="room-3" destination-x="0" destination-y="26">
+                <Transition x="-1" y="3" width="1" height="2" destination="room-2">
                     <Wall sprite="vertical-wall" x="-1" y="3"/>
                     <Wall sprite="veritcal-wall" x="-1" y="4"/>
                 </Transition>
@@ -68,7 +68,7 @@
                 <Campfire x="4" y="4" />
             </Campfires>
         </Room>
-        <Room name="room-3" spawn-x="1" spawn-y="26">
+        <Room name="room-3" spawn-x="1" spawn-y="28">
             <Enemies>
                 <Slime health="&spider_health;" x="4" y="2"/>
                 <Spider health="&spider_health;" x="11" y="3"/>
@@ -85,7 +85,7 @@
                 <Slime health="&spider_health;" x="17" y="21"/>
             </Enemies>
             <Transitions>
-                <Transition x="-1" y="2" width="1" height="2" destination="spider-hallway" destination-x="0" destination-y="2">
+                <Transition x="-1" y="2" width="1" height="2" destination="campfire-room">
                     <Wall sprite="vertical-wall" x="-1" y="2"/>
                     <Wall sprite="veritcal-wall" x="-1" y="3"/>
                 </Transition>
@@ -110,7 +110,7 @@
                 <Spider health="&spider_health;" x="36" y="3"/>
             </Enemies>
             <Transitions>
-                <Transition x="-1" y="2" width="1" height="2" destination="victory-screen" destination-x="0" destination-y="0">
+                <Transition x="-1" y="2" width="1" height="2" destination="victory-screen">
                     <Wall sprite="vertical-wall" x="-1" y="2"/>
                     <Wall sprite="veritcal-wall" x="-1" y="3"/>
                 </Transition>
